@@ -1,7 +1,11 @@
 using ApiCine.Data;
+using ApiCine.Exceptions;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
+//globlandHandler
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+builder.Services.AddProblemDetails();
 
 // Configurar el DbContext para que use SQLite
 string connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
