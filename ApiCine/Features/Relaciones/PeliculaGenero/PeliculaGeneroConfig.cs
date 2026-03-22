@@ -5,12 +5,14 @@ namespace ApiCine.Features.Relaciones.PeliculaGenero {
         public void Configure(Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<PeliculaGeneroEntity> builder) {
 
             builder.ToTable("Pelicula_Genero");
-            builder.HasKey(pg => new { pg.PeliculaId, pg.GeneroId });
-
+            builder.HasKey(pg => pg.Id);
+            builder.HasIndex(pg => new { pg.PeliculaId, pg.GeneroId })
+                .IsUnique()
+                .HasDatabaseName("IX_PeliculaGenero_PeliculaId_GeneroId");
             builder.HasOne(pg=>pg.Pelicula)
                    .WithMany(p=>p.PeliculaGeneros)
                    .HasForeignKey(p=>p.PeliculaId)
-                   .onDelete(DeleteBehavior.Cascade);
+                   .OnDelete(DeleteBehavior.Cascade);
 
             builder.HasOne(pg => pg.Genero)
                    .WithMany(g => g.PeliculaGeneros)

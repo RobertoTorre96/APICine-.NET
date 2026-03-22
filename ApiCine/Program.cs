@@ -8,9 +8,8 @@ builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
 
 // Configurar el DbContext para que use SQLite
-string connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlite(connectionString));
+string connectionString = builder.Configuration.GetConnectionString("DefaultConnection")!;
+builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlite(connectionString));
 
 // Add services to the container.
 
