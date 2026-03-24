@@ -30,6 +30,8 @@ namespace ApiCine.Features.Funcion {
                 .WithMany(s=>s.Funciones)
                 .HasForeignKey(f=>f.SalaId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            
             
         }
     }

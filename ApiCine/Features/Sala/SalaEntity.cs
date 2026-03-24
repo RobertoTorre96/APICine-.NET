@@ -1,8 +1,14 @@
-﻿namespace ApiCine.Features.Sala {
+﻿using ApiCine.Features.Asiento;
+using ApiCine.Features.Funcion;
+
+namespace ApiCine.Features.Sala {
     public class SalaEntity {
 
         public long Id { get; set; }
-        
-        public ICollection<Funcion.FuncionEntity> Funciones { get; set; } = new HashSet<Funcion.FuncionEntity>();
+
+        public string Cod { get; set; } = null!;
+        public ICollection<AsientoEntity> Asientos { get; set; } = new HashSet<AsientoEntity>();
+
+        public ICollection<FuncionEntity> Funciones { get; set; } = new HashSet<FuncionEntity>();
     }
 }
