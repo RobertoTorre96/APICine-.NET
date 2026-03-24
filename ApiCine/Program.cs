@@ -1,8 +1,28 @@
 using ApiCine.Data;
 using ApiCine.Exceptions;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
+
+//validaciones de DTO
+builder.Services.Configure<ApiBehaviorOptions>(options => {
+    options.InvalidModelStateResponseFactory = context => {
+        var errors = context.ModelState
+            .Where(e => e.Value.Errors.Count > 0)
+            .SelectMany(e => e.Value!.Errors)
+            .Select(e => e.ErrorMessage)
+            .ToList();
+
+        var errorResponse = new {
+            StatusCode=400,
+            Message = "Validation failed",
+            Errors = errors
+        };
+        return new BadRequestObjectResult(errorResponse);
+    };
+});
+
 //globlandHandler
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();

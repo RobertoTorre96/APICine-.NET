@@ -13,7 +13,12 @@ namespace ApiCine.Features.Sala {
             builder.Property(s => s.Cod)
                 .IsRequired()
                 .HasMaxLength(50);
-            
+
+            builder.Property(s => s.Nombre)
+                .IsRequired();
+                
+
+
         }
     }
 }

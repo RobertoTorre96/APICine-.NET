@@ -7,6 +7,7 @@ namespace ApiCine.Features.Sala {
         public long Id { get; set; }
 
         public string Cod { get; set; } = null!;
+        public string Nombre { get; set; } = null!;
         public ICollection<AsientoEntity> Asientos { get; set; } = new HashSet<AsientoEntity>();
 
         public ICollection<FuncionEntity> Funciones { get; set; } = new HashSet<FuncionEntity>();
