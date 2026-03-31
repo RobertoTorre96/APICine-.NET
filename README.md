@@ -107,7 +107,9 @@ Uno a Muchos: Sala → Asientos, Película → Funciones, Usuario → Reservas.
 
 ---
 🔒 Seguridad y Transacciones
+
 Control de Integridad
+
 Para las reservas, se utiliza IDbContextTransaction. Esto garantiza la atomicidad: si la validación de un solo asiento falla, la transacción hace un rollback completo, evitando reservas parciales o corruptas.
 
 Protección de Datos
@@ -116,13 +118,15 @@ Passwords: Implementación de BCrypt para evitar el almacenamiento de texto plan
 Validación de Unicidad: Filtros asincrónicos para Email y Username antes de persistir nuevos usuarios.
 
 ---
-📚 Documentación de API
+📚 Documentación de API:
+
 La API está totalmente documentada con Swagger. Permite visualizar los modelos de datos y probar los endpoints directamente desde el navegador.
 
 Swagger UI: https://localhost:XXXX/swagger/index.html
 
 ---
-⚠ Manejo Global de Errores
+⚠ Manejo Global de Errores:
+
 Se implementó un middleware de Global Exception Handler utilizando AddExceptionHandler.
 
 Centraliza el manejo de excepciones personalizadas (NotFoundException, BadRequestException).
@@ -132,7 +136,8 @@ Devuelve respuestas consistentes con códigos de estado HTTP precisos (400, 404,
 Mantiene los controladores limpios de bloques try-catch.
 
 ---
-⚙️ Instalación
+⚙️ Instalación:
+
 Clonar el repositorio
 
 Bash
@@ -164,7 +169,8 @@ Funciones: GET /api/Funcion (Cartelera detallada)
 Reservas: POST /api/Reserva (Permite múltiples asientos en una sola operación)
 
 ---
-🚀 Mejoras Futuras
+🚀 Mejoras Futuras:
+
 [ ] Implementación de JWT (JSON Web Tokens) para autenticación y roles.
 
 [ ] Unit Testing con xUnit y Moq para la lógica de reservas.
@@ -172,7 +178,8 @@ Reservas: POST /api/Reserva (Permite múltiples asientos en una sola operación)
 [ ] Implementación de Soft Delete para registros históricos.
 
 ---
-# 👨‍💻 Autor
+# 👨‍💻 Autor:
+
 
 **Roberto Torre**
 
