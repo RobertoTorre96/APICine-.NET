@@ -2,6 +2,7 @@
     public class ReservaResponseDto {
         public long Id { get; set; }
         public string Cod { get; set; } = string.Empty; // Ej: "RES-XJ82"
+        public string Estado { get; set; } = string.Empty;
         public DateTime Fecha { get; set; }
 
         // Datos de la película y sala para el ticket

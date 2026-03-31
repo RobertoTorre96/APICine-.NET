@@ -21,6 +21,7 @@ namespace ApiCine.Exceptions {
                 NotFoundException => (StatusCodes.Status404NotFound, "Recurso no encontrado"),
                 AlreadyExistsException => (StatusCodes.Status409Conflict, "Conflicto: El recurso ya existe"),
                 ValidationException => (StatusCodes.Status400BadRequest, "Error de validación"),
+                BadRequestException => (StatusCodes.Status400BadRequest, "Solicitud incorrecta"),
                 // Cualquier otro error no controlado (como fallos de base de datos inesperados)
                 _ => (StatusCodes.Status500InternalServerError, "Error interno del servidor")
             };

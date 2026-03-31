@@ -2,8 +2,8 @@
 
 namespace ApiCine.Features.Sala.DTOs {
     public class SalaRequestDto {
-        [Required(ErrorMessage = "El código de la sala es obligatorio.")]
-        [StringLength(10, MinimumLength = 2, ErrorMessage = "El código debe tener entre 2 y 10 caracteres.")]
+        [Required(ErrorMessage = "El nombre de la sala es obligatorio.")]
+        [StringLength(10, MinimumLength = 2, ErrorMessage = "El nombre debe tener entre 2 y 10 caracteres.")]
         public string Nombre { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "Debes indicar cuántas filas tiene la sala.")]

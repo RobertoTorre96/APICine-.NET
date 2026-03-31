@@ -1,4 +1,5 @@
-﻿using ApiCine.Features.Funcion;
+﻿using ApiCine.Features.Enums;
+using ApiCine.Features.Funcion;
 using ApiCine.Features.Relaciones.ReservaAsientos;
 using ApiCine.Features.Usuario;
 
@@ -7,6 +8,7 @@ namespace ApiCine.Features.Reserva {
 
         public long Id { get; set; }
         public string Cod { get;set; }  = null!;
+        public EEstadoReserva Estado { get; set; } = EEstadoReserva.Confirmada;
         public DateTime Fecha { get; set; }
         public long FuncionId { get; set; }
         public FuncionEntity Funcion { get; set; } = null!;

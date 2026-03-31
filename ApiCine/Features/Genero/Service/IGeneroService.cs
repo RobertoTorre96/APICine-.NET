@@ -2,9 +2,14 @@
 
 namespace ApiCine.Features.Genero.Service {
     public interface IGeneroService {
-        Task<IEnumerable<GeneroResponseDto>> FindAll();        
-        Task<GeneroResponseDto> Create(GeneroRequestDto generoRequestDto);  
+        Task<IEnumerable<GeneroResponseDto>> FindAll();
+        Task<GeneroResponseDto> Create(GeneroRequestDto generoRequestDto);
 
-        Task <bool> Delete(long id);
+        Task<bool> Delete(long id);
+
+
+
+
+
     }
 }

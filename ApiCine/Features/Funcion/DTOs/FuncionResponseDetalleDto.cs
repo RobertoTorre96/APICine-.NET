@@ -20,6 +20,6 @@
         public int CantidadColumnas { get; set; }
 
         // Aquí podrías incluir la lista de asientos ya ocupados
-        public List<int> AsientosOcupadosIds { get; set; } = new();
+        public List<long> AsientosOcupadosIds { get; set; } = new();
     }
 }

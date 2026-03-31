@@ -1,6 +1,10 @@
 using ApiCine.Data;
 using ApiCine.Exceptions;
+using ApiCine.Features.Funcion.Service;
 using ApiCine.Features.Genero.Service;
+using ApiCine.Features.Pelicula.Service;
+using ApiCine.Features.Reserva.Service;
+using ApiCine.Features.Sala.Service;
 using ApiCine.Mappers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -9,7 +13,10 @@ var builder = WebApplication.CreateBuilder(args);
 
 // inyecciones
 builder.Services.AddScoped<IGeneroService, GeneroServiceImpl>();
-
+builder.Services.AddScoped<IPeliculaService, PeliculaServiceImpl>();
+builder.Services.AddScoped<ISalaService, SalaServiceImpl>();
+builder.Services.AddScoped<IFuncionService, FuncionServiceImpl>();
+builder.Services.AddScoped<IReservaService, ReservaServiceImpl>();
 //validaciones de DTO
 builder.Services.Configure<ApiBehaviorOptions>(options => {
     options.InvalidModelStateResponseFactory = context => {

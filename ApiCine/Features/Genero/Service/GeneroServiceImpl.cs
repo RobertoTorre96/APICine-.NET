@@ -16,6 +16,11 @@ namespace ApiCine.Features.Genero.Service {
         }
         
         public async Task<GeneroResponseDto> Create(GeneroRequestDto generoRequestDto) {
+            var existe= await _context.Genero.AnyAsync(g=>string.Equals(g.Nombre,generoRequestDto.Nombre));
+            if (existe) {
+                throw new AlreadyExistsException($"El genero {generoRequestDto.Nombre} ya existe.");
+            }
+
             var generoNuevo = _mapper.Map<GeneroEntity>(generoRequestDto);
 
             _context.Genero.Add(generoNuevo);
