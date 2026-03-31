@@ -81,7 +81,7 @@ ApiCine
 └── Controllers (API Endpoints)
 
 ```
-
+---
 ⚙️ Tecnologías
 Backend: C# / .NET 8
 
@@ -97,7 +97,7 @@ Documentación: Swagger / OpenAPI
 
 Herramientas: Visual Studio 2022, Postman, dotnet-ef tools
 
-
+---
 🧩 Modelo del Dominio
 El sistema utiliza relaciones complejas para representar la realidad de un cine:
 
@@ -105,7 +105,7 @@ Muchos a Muchos: Película ↔ Género (vía PeliculaGenero), Reserva ↔ Asient
 
 Uno a Muchos: Sala → Asientos, Película → Funciones, Usuario → Reservas.
 
-
+---
 🔒 Seguridad y Transacciones
 Control de Integridad
 Para las reservas, se utiliza IDbContextTransaction. Esto garantiza la atomicidad: si la validación de un solo asiento falla, la transacción hace un rollback completo, evitando reservas parciales o corruptas.
@@ -115,11 +115,13 @@ Passwords: Implementación de BCrypt para evitar el almacenamiento de texto plan
 
 Validación de Unicidad: Filtros asincrónicos para Email y Username antes de persistir nuevos usuarios.
 
+---
 📚 Documentación de API
 La API está totalmente documentada con Swagger. Permite visualizar los modelos de datos y probar los endpoints directamente desde el navegador.
 
 Swagger UI: https://localhost:XXXX/swagger/index.html
 
+---
 ⚠ Manejo Global de Errores
 Se implementó un middleware de Global Exception Handler utilizando AddExceptionHandler.
 
@@ -129,6 +131,7 @@ Devuelve respuestas consistentes con códigos de estado HTTP precisos (400, 404,
 
 Mantiene los controladores limpios de bloques try-catch.
 
+---
 ⚙️ Instalación
 Clonar el repositorio
 
@@ -148,6 +151,7 @@ Correr el proyecto
 Bash
 dotnet run --project ApiCine
 
+---
 📡 Endpoints Principales
 Usuarios: POST /api/Usuario (Registro), GET /api/Usuario/{id}
 
@@ -159,7 +163,7 @@ Funciones: GET /api/Funcion (Cartelera detallada)
 
 Reservas: POST /api/Reserva (Permite múltiples asientos en una sola operación)
 
-
+---
 🚀 Mejoras Futuras
 [ ] Implementación de JWT (JSON Web Tokens) para autenticación y roles.
 
@@ -167,7 +171,7 @@ Reservas: POST /api/Reserva (Permite múltiples asientos en una sola operación)
 
 [ ] Implementación de Soft Delete para registros históricos.
 
-
+---
 # 👨‍💻 Autor
 
 **Roberto Torre**
