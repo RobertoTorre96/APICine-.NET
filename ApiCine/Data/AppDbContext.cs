@@ -6,6 +6,7 @@ using ApiCine.Features.Relaciones.PeliculaGenero;
 using ApiCine.Features.Relaciones.ReservaAsientos;
 using ApiCine.Features.Reserva;
 using ApiCine.Features.Sala;
+using ApiCine.Features.Usuario;
 using Microsoft.EntityFrameworkCore;
 using System.Reflection;
 
@@ -22,6 +23,7 @@ namespace ApiCine.Data {
         public DbSet<AsientoEntity> Asiento { get; set; }
         public DbSet<ReservaEntity> Reserva { get; set; }
         public DbSet<ReservaAsientoEntity> ReservaAsiento { get; set; }
+        public DbSet<UsuarioEntity> Usuario { get; set; }
 
 
 
