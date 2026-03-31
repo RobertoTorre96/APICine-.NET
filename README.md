@@ -82,7 +82,8 @@ ApiCine
 
 ```
 ---
-⚙️ Tecnologías
+⚙️ Tecnologías:
+
 Backend: C# / .NET 8
 
 ORM: Entity Framework Core
@@ -98,7 +99,8 @@ Documentación: Swagger / OpenAPI
 Herramientas: Visual Studio 2022, Postman, dotnet-ef tools
 
 ---
-🧩 Modelo del Dominio
+🧩 Modelo del Dominio:
+
 El sistema utiliza relaciones complejas para representar la realidad de un cine:
 
 Muchos a Muchos: Película ↔ Género (vía PeliculaGenero), Reserva ↔ Asiento (vía ReservaAsiento).
@@ -106,7 +108,7 @@ Muchos a Muchos: Película ↔ Género (vía PeliculaGenero), Reserva ↔ Asient
 Uno a Muchos: Sala → Asientos, Película → Funciones, Usuario → Reservas.
 
 ---
-🔒 Seguridad y Transacciones
+🔒 Seguridad y Transacciones:
 
 Control de Integridad
 
@@ -141,19 +143,18 @@ Mantiene los controladores limpios de bloques try-catch.
 Clonar el repositorio
 
 Bash
+
 git clone https://github.com/RobertoTorre96/APICine-.NET.git
 cd APICine-.NET
 
-Bash
 dotnet restore
 
 
-Ejecutar Migraciones
-Bash
+Ejecutar Migraciones;
 dotnet ef database update
 
-Correr el proyecto
-Bash
+Correr el proyecto:
+
 dotnet run --project ApiCine
 
 ---
