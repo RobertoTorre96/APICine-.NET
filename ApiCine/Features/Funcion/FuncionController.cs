@@ -1,9 +1,12 @@
 ﻿using ApiCine.Features.Funcion.DTOs;
 using ApiCine.Features.Funcion.Service;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ApiCine.Features.Funcion {
 
+
+    [Authorize(Roles = "Admin")]
     [ApiController]
     [Route("api/[controller]")]
     public class FuncionController : ControllerBase {
@@ -22,12 +25,15 @@ namespace ApiCine.Features.Funcion {
             return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
         }
 
+        [AllowAnonymous]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<FuncionResponseListaDto>>> GetAll() {
             var result = await _service.FindAll();
             return Ok(result);
         }
 
+
+        [AllowAnonymous]
         [HttpGet("{id}")]
         public async Task<ActionResult<FuncionResponseDetalleDto>> GetById(long id) {
             var result = await _service.FindById(id);

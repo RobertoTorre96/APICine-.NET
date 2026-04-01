@@ -1,8 +1,11 @@
 ﻿using ApiCine.Features.Reserva.DTOs;
 using ApiCine.Features.Reserva.Service;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ApiCine.Features.Reserva {
+
+    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class ReservaController : ControllerBase {

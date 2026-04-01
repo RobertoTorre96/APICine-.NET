@@ -5,5 +5,6 @@ namespace ApiCine.Features.Usuario.Service {
         Task<UsuarioResponseDto> Registrar(UsuarioRequestDto request);
         Task<UsuarioResponseDto> GetById(long id);
         Task<IEnumerable<UsuarioResponseDto>> GetAll();
+        Task<string> Login(UsuarioLoginRequestDto request);
     }
 }

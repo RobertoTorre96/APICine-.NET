@@ -1,8 +1,11 @@
 ﻿using ApiCine.Features.Genero.DTOs;
 using ApiCine.Features.Genero.Service;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ApiCine.Features.Genero {
+
+    [Authorize(Roles = "Admin")]
     [ApiController]
     [Route("api/[controller]")]
     public class GeneroController : ControllerBase {
@@ -12,6 +15,8 @@ namespace ApiCine.Features.Genero {
             _generoService = generoService;
         }
 
+
+        [AllowAnonymous]
         [HttpGet]
         public async Task<IActionResult> GetAll() {
             var generos = await _generoService.FindAll();
