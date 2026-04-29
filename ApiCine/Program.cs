@@ -1,5 +1,6 @@
 using ApiCine.Data;
 using ApiCine.Exceptions;
+using ApiCine.Features.Auth.Service;
 using ApiCine.Features.Funcion.Service;
 using ApiCine.Features.Genero.Service;
 using ApiCine.Features.Pelicula.Service;
@@ -46,6 +47,7 @@ builder.Services.AddScoped<ISalaService, SalaServiceImpl>();
 builder.Services.AddScoped<IFuncionService, FuncionServiceImpl>();
 builder.Services.AddScoped<IReservaService, ReservaServiceImpl>();
 builder.Services.AddScoped<IUsuarioService, UsuarioServiceImpl>();
+builder.Services.AddScoped<IAuthService, AuthService>();
 //validaciones de DTO
 builder.Services.Configure<ApiBehaviorOptions>(options => {
     options.InvalidModelStateResponseFactory = context => {
@@ -106,6 +108,26 @@ builder.Services.AddSwaggerGen(options => {
 
 
 var app = builder.Build();
+
+// Lógica de Seeding
+using (var scope = app.Services.CreateScope()) {
+    var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+    // 1. Aplicamos migraciones pendientes (esto crea las tablas y mete el HasData)
+    context.Database.Migrate();
+
+    // 2. Ejecutamos el Script SQL de prueba solo si no hay películas
+    if (!context.Pelicula.Any()) {
+        var sqlPath = Path.Combine(AppContext.BaseDirectory, "Data/Scripts/SeedData.sql");
+        if (File.Exists(sqlPath)) {
+            var sql = File.ReadAllText(sqlPath);
+            context.Database.ExecuteSqlRaw(sql);
+            Console.WriteLine("--> SeedData.sql ejecutado con éxito.");
+        }
+    }
+}
+
+// ... resto del pipeline (UseSwagger, etc)
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment()) {

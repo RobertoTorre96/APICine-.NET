@@ -42,7 +42,7 @@ namespace ApiCine.Features.Usuario {
             return Ok(await _usuarioService.GetById(id));
         }
 
-        [Authorize(Roles = "Admin")]
+      //  [Authorize(Roles = "Admin")]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<UsuarioResponseDto>>> GetAll() {
             return Ok(await _usuarioService.GetAll());

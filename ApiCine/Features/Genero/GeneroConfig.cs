@@ -14,6 +14,12 @@ namespace ApiCine.Features.Genero {
             builder.HasIndex(g => g.Nombre)
                 .IsUnique();
 
+
+            builder.HasData(
+                new { Id = 1L, Nombre = "Acción" },
+                new { Id = 2L, Nombre = "Terror" },
+                new { Id = 3L, Nombre = "Ciencia Ficción" }
+            );
         }
     }
 }
