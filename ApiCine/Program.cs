@@ -108,33 +108,42 @@ builder.Services.AddSwaggerGen(options => {
 var app = builder.Build();
 
 // --- LÓGICA DE INICIALIZACIÓN (DATABASE & SQL SEEDING) ---
+// --- LÓGICA DE INICIALIZACIÓN (Versión Final Definitiva) ---
 using (var scope = app.Services.CreateScope()) {
     var services = scope.ServiceProvider;
     var context = services.GetRequiredService<AppDbContext>();
 
     try {
-        // 1. Crea la base de datos y las tablas si no existen
+        Console.WriteLine(">>> Iniciando creación de base de datos...");
+
+        // 1. Borramos y creamos para asegurar limpieza (Solo si estás en pruebas)
+        // context.Database.EnsureDeleted(); // Opcional: usalo si querés resetear todo
+
         context.Database.EnsureCreated();
 
-        // 2. Ejecutar el script SQL solo si la tabla Pelicula está vacía
-        // Nota: Ajusta 'Peliculas' al nombre de tu DbSet si es diferente
-        if (!context.Pelicula.Any()) {
-            var sqlPath = Path.Combine(Directory.GetCurrentDirectory(), "Data", "Scripts", "SeedData.sql");
-
-            if (File.Exists(sqlPath)) {
-                var sql = File.ReadAllText(sqlPath);
-                context.Database.ExecuteSqlRaw(sql);
-                Console.WriteLine(">>> Script SQL SeedData.sql ejecutado con éxito.");
-            }
-            else {
-                Console.WriteLine($">>> No se encontró el archivo SQL en: {sqlPath}");
-            }
+        // 2. Verificamos qué tablas existen realmente (Log para depuración)
+        using var command = context.Database.GetDbConnection().CreateCommand();
+        command.CommandText = "SELECT name FROM sqlite_master WHERE type='table';";
+        context.Database.OpenConnection();
+        using var reader = command.ExecuteReader();
+        Console.WriteLine(">>> Tablas detectadas en SQLite:");
+        while (reader.Read()) {
+            Console.WriteLine($" - {reader.GetString(0)}");
         }
 
-        Console.WriteLine(">>> Aplicación lista para recibir peticiones.");
+        // 3. SEEDING MANUAL: Si la tabla Pelicula está vacía, insertamos el SQL
+        // IMPORTANTE: Asegurate de usar el nombre exacto que EF Core le puso a la tabla
+        // Si en el log anterior no aparece "Pelicula", cambialo por el que aparezca.
+
+        var sqlPath = Path.Combine(Directory.GetCurrentDirectory(), "Data", "Scripts", "SeedData.sql");
+        if (File.Exists(sqlPath)) {
+            var sql = File.ReadAllText(sqlPath);
+            context.Database.ExecuteSqlRaw(sql);
+            Console.WriteLine(">>> Script SeedData.sql ejecutado.");
+        }
     }
     catch (Exception ex) {
-        Console.WriteLine($">>> Error en inicialización: {ex.Message}");
+        Console.WriteLine($">>> ERROR CRÍTICO EN DB: {ex.Message}");
     }
 }
 
