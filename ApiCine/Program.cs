@@ -80,10 +80,10 @@ using (var scope = app.Services.CreateScope()) {
     var context = services.GetRequiredService<AppDbContext>();
 
     try {
-        Console.WriteLine($">>> Base de Datos en: {dbPath}");
-        context.Database.EnsureDeleted(); // Reset para limpiar tablas mal creadas
+        context.Database.EnsureDeleted();
         context.Database.EnsureCreated();
 
+        // Esta ruta busca dentro de la carpeta donde se publica la App en el contenedor
         var sqlPath = Path.Combine(AppContext.BaseDirectory, "Data", "Scripts", "SeedData.sql");
 
         if (File.Exists(sqlPath)) {
@@ -92,11 +92,11 @@ using (var scope = app.Services.CreateScope()) {
             Console.WriteLine(">>> SEED COMPLETADO EXITOSAMENTE.");
         }
         else {
-            Console.WriteLine($">>> ERROR: No se encontró el SQL en {sqlPath}");
+            Console.WriteLine($">>> ERROR: No se encontró el archivo en: {sqlPath}");
         }
     }
     catch (Exception ex) {
-        Console.WriteLine($">>> ERROR EN DB: {ex.Message}");
+        Console.WriteLine($">>> ERROR CRÍTICO: {ex.Message}");
     }
 }
 
