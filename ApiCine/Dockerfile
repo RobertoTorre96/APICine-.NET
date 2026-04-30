@@ -1,30 +1,23 @@
-# --- ETAPA 1: COMPILACIÓN ---
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
-# Usamos un wildcard para encontrar el csproj esté donde esté
-COPY **/*.csproj ./
-RUN dotnet restore
+# Copiar archivos de proyecto y restaurar
+COPY ["ApiCine.csproj", "./"]
+RUN dotnet restore "./ApiCine.csproj"
 
-# Copiamos todo
+# Copiar todo el código y compilar
 COPY . .
+RUN dotnet build "ApiCine.csproj" -c Release -o /app/build
 
-# Publicamos
-RUN dotnet publish -c Release -o /app/publish /p:UseAppHost=false
+FROM build AS publish
+RUN dotnet publish "ApiCine.csproj" -c Release -o /app/publish /p:UseAppHost=false
 
-# --- ETAPA 2: EJECUCIÓN ---
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
 WORKDIR /app
+COPY --from=publish /app/publish .
 
-EXPOSE 8080
-ENV ASPNETCORE_URLS=http://+:8080
-
-COPY --from=build /app/publish .
-
-# ⚠️ LA SOLUCIÓN AL ERROR DE RUTA:
-# En lugar de buscar en carpetas específicas, vamos a buscar el archivo SQL 
-# en todo el proyecto y lo movemos a donde la App lo espera.
-RUN mkdir -p Data/Scripts
-COPY **/SeedData.sql Data/Scripts/
+# --- ESTA LÍNEA ES CRUCIAL ---
+# Copiamos el SQL explícitamente a la imagen final
+COPY Data/Scripts/SeedData.sql ./Data/Scripts/SeedData.sql
 
 ENTRYPOINT ["dotnet", "ApiCine.dll"]
