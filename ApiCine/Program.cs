@@ -114,32 +114,38 @@ using (var scope = app.Services.CreateScope()) {
     var context = services.GetRequiredService<AppDbContext>();
 
     try {
-        Console.WriteLine(">>> ELIMINANDO DB ANTIGUA (RESET)...");
-        context.Database.EnsureDeleted(); // Borramos para limpiar errores previos
+        // 1. FORZAMOS EL RESET: Borra el archivo .db viejo y lo crea de cero con todas las tablas
+        Console.WriteLine(">>> Eliminando base de datos antigua...");
+        context.Database.EnsureDeleted();
 
-        Console.WriteLine(">>> CREANDO TABLAS NUEVAS...");
-        context.Database.EnsureCreated(); // EF crea las tablas según tus clases C#
+        Console.WriteLine(">>> Creando tablas nuevas desde los modelos C#...");
+        context.Database.EnsureCreated();
 
-        // LEER EL SCRIPT SQL
-        var sqlPath = Path.Combine(Directory.GetCurrentDirectory(), "Data", "Scripts", "SeedData.sql");
+        // 2. BUSCAMOS EL SCRIPT (Ruta corregida para Docker)
+        // Probamos con la ruta relativa que suele funcionar en la raíz de la app publicada
+        var sqlPath = Path.Combine(AppContext.BaseDirectory, "Data", "Scripts", "SeedData.sql");
 
         if (File.Exists(sqlPath)) {
-            Console.WriteLine(">>> EJECUTANDO SEEDDATA.SQL...");
+            Console.WriteLine(">>> Ejecutando SeedData.sql...");
             var sql = File.ReadAllText(sqlPath);
-
-            // Ejecutamos el SQL crudo
             context.Database.ExecuteSqlRaw(sql);
-
-            Console.WriteLine(">>> TODO OK: Tablas creadas y datos insertados.");
+            Console.WriteLine(">>> SEED COMPLETADO EXITOSAMENTE.");
         }
         else {
-            Console.WriteLine($">>> ERROR: No encontré el archivo SQL en {sqlPath}");
+            // Si falla la ruta anterior, probamos la ruta de desarrollo por si acaso
+            var altPath = Path.Combine(Directory.GetCurrentDirectory(), "Data", "Scripts", "SeedData.sql");
+            if (File.Exists(altPath)) {
+                var sql = File.ReadAllText(altPath);
+                context.Database.ExecuteSqlRaw(sql);
+                Console.WriteLine(">>> SEED COMPLETADO (Ruta alternativa).");
+            }
+            else {
+                Console.WriteLine(">>> ERROR: El archivo SQL sigue sin aparecer en ninguna ruta.");
+            }
         }
     }
     catch (Exception ex) {
         Console.WriteLine($">>> ERROR CRÍTICO: {ex.Message}");
-        if (ex.InnerException != null)
-            Console.WriteLine($">>> DETALLE: {ex.InnerException.Message}");
     }
 }
 
