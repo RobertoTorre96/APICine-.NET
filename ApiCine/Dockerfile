@@ -2,14 +2,15 @@
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
-# Como ya estamos dentro de la carpeta ApiCine por la configuración de Render,
-# el archivo .csproj está en la raíz actual.
-COPY ["ApiCine.csproj", "./"]
-RUN dotnet restore "ApiCine.csproj"
+# Usamos un wildcard para encontrar el csproj esté donde esté
+COPY **/*.csproj ./
+RUN dotnet restore
 
+# Copiamos todo
 COPY . .
-# No necesitamos hacer WORKDIR /src/ApiCine porque ya estamos en la carpeta del código
-RUN dotnet publish "ApiCine.csproj" -c Release -o /app/publish /p:UseAppHost=false
+
+# Publicamos
+RUN dotnet publish -c Release -o /app/publish /p:UseAppHost=false
 
 # --- ETAPA 2: EJECUCIÓN ---
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
@@ -20,8 +21,10 @@ ENV ASPNETCORE_URLS=http://+:8080
 
 COPY --from=build /app/publish .
 
-# CORRECCIÓN AQUÍ: Quitamos "ApiCine/" del origen
+# ⚠️ LA SOLUCIÓN AL ERROR DE RUTA:
+# En lugar de buscar en carpetas específicas, vamos a buscar el archivo SQL 
+# en todo el proyecto y lo movemos a donde la App lo espera.
 RUN mkdir -p Data/Scripts
-COPY ["Data/Scripts/SeedData.sql", "Data/Scripts/"]
+COPY **/SeedData.sql Data/Scripts/
 
 ENTRYPOINT ["dotnet", "ApiCine.dll"]
