@@ -40,13 +40,13 @@ El proyecto incluye un Seeder automático con datos de prueba para facilitar la 
 1. Instalación:
 
 En Bash u otra terminal:
-'''
+```
 git clone https://github.com/RobertoTorre96/APICine-.NET.git
 cd APICine-.NET
 dotnet restore
 dotnet ef database update
 dotnet run --project ApiCine
-'''
+```
 2. Credenciales de Acceso (Admin):
 Para probar los endpoints protegidos en Swagger:
 
