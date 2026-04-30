@@ -1,21 +1,21 @@
-# Ignorar carpetas de compilación local
-bin/
-obj/
+# Ignorar carpetas de compilación de todas las subcarpetas
+**/bin/
+**/obj/
 
-# Ignorar la base de datos local (Queremos que el Seeder cree una nueva en Render)
-*.db
-*.db-journal
-*.db-shm
-*.db-wal
-
-# Ignorar archivos de configuración de Visual Studio
+# Ignorar archivos de configuración de entorno local
 .vs/
 .vscode/
+*.user
 
-# Ignorar Git
+# Ignorar la base de datos SQLite local para que no sobrescriba la de Render
+**/*.db
+**/*.db-journal
+**/*.db-shm
+**/*.db-wal
+
+# Archivos de sistema y logs
 .git/
 .gitignore
-
-# No copiar el Dockerfile dentro de la imagen
-Dockerfile
 .dockerignore
+Dockerfile
+node_modules/
