@@ -19,11 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Data\Scripts\" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Update="Data\Scripts\Seeddata.sql">
+    <None Update="Data\Scripts\SeedData.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
