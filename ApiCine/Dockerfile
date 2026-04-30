@@ -1,21 +1,29 @@
-# --- ETAPA 2: EJECUCIÓN (Runtime de .NET 8) ---
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+WORKDIR /src
+
+# Copiamos el proyecto usando la ruta que confirmamos en tu GitHub
+COPY ["ApiCine/ApiCine.csproj", "ApiCine/"]
+RUN dotnet restore "ApiCine/ApiCine.csproj"
+
+# Copiamos todo el contenido del repo
+COPY . .
+
+# Publicamos el proyecto
+WORKDIR "/src/ApiCine"
+RUN dotnet publish "ApiCine.csproj" -c Release -o /app/publish /p:UseAppHost=false
+
+# --- ETAPA DE EJECUCIÓN ---
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
 WORKDIR /app
 
-# Puerto que usa Render por defecto
 EXPOSE 8080
 ENV ASPNETCORE_URLS=http://+:8080
 
-# Copiar los archivos publicados desde la etapa de compilación
+# Aquí es donde fallaba: ahora 'build' está definido arriba
 COPY --from=build /app/publish .
 
-# 4. CORRECCIÓN DE RUTA PARA EL SCRIPT SQL
-# Creamos la carpeta dentro del contenedor
+# Copiamos el script de datos
 RUN mkdir -p Data/Scripts
-
-# Copiamos el archivo desde la carpeta del proyecto (donde vive en GitHub)
-# hacia la carpeta que acabamos de crear en el contenedor.
 COPY ["ApiCine/Data/Scripts/SeedData.sql", "Data/Scripts/"]
 
-# Comando para arrancar la API
 ENTRYPOINT ["dotnet", "ApiCine.dll"]
