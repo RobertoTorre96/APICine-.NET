@@ -1,29 +1,27 @@
+# --- ETAPA 1: COMPILACIÓN ---
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
-# Copiamos el proyecto usando la ruta que confirmamos en tu GitHub
-COPY ["ApiCine/ApiCine.csproj", "ApiCine/"]
-RUN dotnet restore "ApiCine/ApiCine.csproj"
+# Como ya estamos dentro de la carpeta ApiCine por la configuración de Render,
+# el archivo .csproj está en la raíz actual.
+COPY ["ApiCine.csproj", "./"]
+RUN dotnet restore "ApiCine.csproj"
 
-# Copiamos todo el contenido del repo
 COPY . .
-
-# Publicamos el proyecto
-WORKDIR "/src/ApiCine"
+# No necesitamos hacer WORKDIR /src/ApiCine porque ya estamos en la carpeta del código
 RUN dotnet publish "ApiCine.csproj" -c Release -o /app/publish /p:UseAppHost=false
 
-# --- ETAPA DE EJECUCIÓN ---
+# --- ETAPA 2: EJECUCIÓN ---
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
 WORKDIR /app
 
 EXPOSE 8080
 ENV ASPNETCORE_URLS=http://+:8080
 
-# Aquí es donde fallaba: ahora 'build' está definido arriba
 COPY --from=build /app/publish .
 
-# Copiamos el script de datos
+# CORRECCIÓN AQUÍ: Quitamos "ApiCine/" del origen
 RUN mkdir -p Data/Scripts
-COPY ["ApiCine/Data/Scripts/SeedData.sql", "Data/Scripts/"]
+COPY ["Data/Scripts/SeedData.sql", "Data/Scripts/"]
 
 ENTRYPOINT ["dotnet", "ApiCine.dll"]
