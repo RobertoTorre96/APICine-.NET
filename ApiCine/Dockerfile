@@ -21,6 +21,6 @@ COPY --from=publish /app/publish .
 # 3. RUTA DEL SCRIPT SQL:
 # Usamos el asterisco para que Docker lo encuentre sin importar 
 # si la ruta tiene diferencias de mayúsculas/minúsculas en el servidor
-COPY Data/Scripts/SeedData.sql ./Data/Scripts/SeedData.sql
-
+# Esto busca SeedData.sql donde sea que esté y lo pone en el destino correcto
+COPY **/SeedData.sql ./Data/Scripts/SeedData.sql
 ENTRYPOINT ["dotnet", "ApiCine.dll"]
