@@ -1,11 +1,11 @@
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
-# 1. El .csproj está en la misma carpeta que el Dockerfile
-COPY ["ApiCine.csproj", "./"]
+# 1. Copiar el archivo de proyecto (está en la misma carpeta que el Dockerfile)
+COPY ApiCine.csproj ./
 RUN dotnet restore "ApiCine.csproj"
 
-# 2. Copiamos todo el contenido de la carpeta ApiCine
+# 2. Copiar todo el contenido de la carpeta actual
 COPY . .
 RUN dotnet build "ApiCine.csproj" -c Release -o /app/build
 
@@ -14,10 +14,13 @@ RUN dotnet publish "ApiCine.csproj" -c Release -o /app/publish /p:UseAppHost=fal
 
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
 WORKDIR /app
+
+# Copiamos la aplicación publicada
 COPY --from=publish /app/publish .
 
-# 3. RUTA CORREGIDA: 
-# Como el Dockerfile está en 'ApiCine', 'Data' es una carpeta hermana.
+# 3. RUTA DEL SCRIPT SQL:
+# Usamos el asterisco para que Docker lo encuentre sin importar 
+# si la ruta tiene diferencias de mayúsculas/minúsculas en el servidor
 COPY Data/Scripts/SeedData.sql ./Data/Scripts/SeedData.sql
 
 ENTRYPOINT ["dotnet", "ApiCine.dll"]
