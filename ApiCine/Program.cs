@@ -114,36 +114,32 @@ using (var scope = app.Services.CreateScope()) {
     var context = services.GetRequiredService<AppDbContext>();
 
     try {
-        Console.WriteLine(">>> Iniciando creación de base de datos...");
+        Console.WriteLine(">>> ELIMINANDO DB ANTIGUA (RESET)...");
+        context.Database.EnsureDeleted(); // Borramos para limpiar errores previos
 
-        // 1. Borramos y creamos para asegurar limpieza (Solo si estás en pruebas)
-        // context.Database.EnsureDeleted(); // Opcional: usalo si querés resetear todo
+        Console.WriteLine(">>> CREANDO TABLAS NUEVAS...");
+        context.Database.EnsureCreated(); // EF crea las tablas según tus clases C#
 
-        context.Database.EnsureCreated();
-
-        // 2. Verificamos qué tablas existen realmente (Log para depuración)
-        using var command = context.Database.GetDbConnection().CreateCommand();
-        command.CommandText = "SELECT name FROM sqlite_master WHERE type='table';";
-        context.Database.OpenConnection();
-        using var reader = command.ExecuteReader();
-        Console.WriteLine(">>> Tablas detectadas en SQLite:");
-        while (reader.Read()) {
-            Console.WriteLine($" - {reader.GetString(0)}");
-        }
-
-        // 3. SEEDING MANUAL: Si la tabla Pelicula está vacía, insertamos el SQL
-        // IMPORTANTE: Asegurate de usar el nombre exacto que EF Core le puso a la tabla
-        // Si en el log anterior no aparece "Pelicula", cambialo por el que aparezca.
-
+        // LEER EL SCRIPT SQL
         var sqlPath = Path.Combine(Directory.GetCurrentDirectory(), "Data", "Scripts", "SeedData.sql");
+
         if (File.Exists(sqlPath)) {
+            Console.WriteLine(">>> EJECUTANDO SEEDDATA.SQL...");
             var sql = File.ReadAllText(sqlPath);
+
+            // Ejecutamos el SQL crudo
             context.Database.ExecuteSqlRaw(sql);
-            Console.WriteLine(">>> Script SeedData.sql ejecutado.");
+
+            Console.WriteLine(">>> TODO OK: Tablas creadas y datos insertados.");
+        }
+        else {
+            Console.WriteLine($">>> ERROR: No encontré el archivo SQL en {sqlPath}");
         }
     }
     catch (Exception ex) {
-        Console.WriteLine($">>> ERROR CRÍTICO EN DB: {ex.Message}");
+        Console.WriteLine($">>> ERROR CRÍTICO: {ex.Message}");
+        if (ex.InnerException != null)
+            Console.WriteLine($">>> DETALLE: {ex.InnerException.Message}");
     }
 }
 
