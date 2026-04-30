@@ -114,7 +114,7 @@ using (var scope = app.Services.CreateScope()) {
     var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
     // 1. Aplicamos migraciones pendientes (esto crea las tablas y mete el HasData)
-    context.Database.Migrate();
+    context.Database.EnsureCreated();
 
     // 2. Ejecutamos el Script SQL de prueba solo si no hay películas
     if (!context.Pelicula.Any()) {
