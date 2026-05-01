@@ -15,11 +15,6 @@ namespace ApiCine.Features.Genero {
                 .IsUnique();
 
 
-            builder.HasData(
-                new { Id = 1L, Nombre = "Acción" },
-                new { Id = 2L, Nombre = "Terror" },
-                new { Id = 3L, Nombre = "Ciencia Ficción" }
-            );
         }
     }
 }
