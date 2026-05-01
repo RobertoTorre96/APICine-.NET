@@ -1,26 +1,33 @@
+# 1. ETAPA DE CONSTRUCCIÓN (BUILD)
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
-# 1. Copiar el archivo de proyecto (está en la misma carpeta que el Dockerfile)
-COPY ApiCine.csproj ./
-RUN dotnet restore "ApiCine.csproj"
+# Copiamos el proyecto y restauramos dependencias
+# Usamos comodín por si hay variaciones en el nombre
+COPY *.csproj ./
+RUN dotnet restore
 
-# 2. Copiar todo el contenido de la carpeta actual
+# Copiamos todo el código fuente
 COPY . .
+
+# Compilamos la aplicación
 RUN dotnet build "ApiCine.csproj" -c Release -o /app/build
 
+# 2. ETAPA DE PUBLICACIÓN (PUBLISH)
 FROM build AS publish
 RUN dotnet publish "ApiCine.csproj" -c Release -o /app/publish /p:UseAppHost=false
 
+# 3. ETAPA FINAL (EJECUCIÓN)
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
 WORKDIR /app
 
-# Copiamos la aplicación publicada
+# Copiamos los archivos publicados desde la etapa anterior
 COPY --from=publish /app/publish .
 
-# 3. RUTA DEL SCRIPT SQL:
-# Usamos el asterisco para que Docker lo encuentre sin importar 
-# si la ruta tiene diferencias de mayúsculas/minúsculas en el servidor
-# Esto busca SeedData.sql donde sea que esté y lo pone en el destino correcto
-COPY **/SeedData.sql ./Data/Scripts/SeedData.sql
+# --- EL CAMBIO CLAVE ---
+# Creamos la carpeta de destino y copiamos el SQL explícitamente
+# Esto asegura que el archivo esté en /app/Data/Scripts/SeedData.sql
+COPY Data/Scripts/SeedData.sql ./Data/Scripts/SeedData.sql
+
+# Comando para iniciar la API
 ENTRYPOINT ["dotnet", "ApiCine.dll"]

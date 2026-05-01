@@ -80,23 +80,44 @@ using (var scope = app.Services.CreateScope()) {
     var context = services.GetRequiredService<AppDbContext>();
 
     try {
+        Console.WriteLine(">>> Iniciando proceso de base de datos...");
+
+        // 1. Recreamos la base de datos
         context.Database.EnsureDeleted();
         context.Database.EnsureCreated();
+        Console.WriteLine(">>> Base de datos recreada exitosamente.");
 
-        // Esta ruta busca dentro de la carpeta donde se publica la App en el contenedor
-        var sqlPath = Path.Combine(AppContext.BaseDirectory, "Data", "Scripts", "SeedData.sql");
+        // 2. Buscamos el archivo SQL en múltiples lugares posibles
+        string baseDir = AppContext.BaseDirectory;
+        string[] rutasParaProbar = {
+            Path.Combine(baseDir, "Data", "Scripts", "SeedData.sql"),
+            Path.Combine(baseDir, "SeedData.sql"),
+            "/app/Data/Scripts/SeedData.sql",
+            "/app/publish/Data/Scripts/SeedData.sql"
+        };
 
-        if (File.Exists(sqlPath)) {
-            var sql = File.ReadAllText(sqlPath);
+        string? rutaEncontrada = rutasParaProbar.FirstOrDefault(ruta => File.Exists(ruta));
+
+        if (rutaEncontrada != null) {
+            Console.WriteLine($">>> Archivo encontrado en: {rutaEncontrada}");
+            var sql = File.ReadAllText(rutaEncontrada);
+
+            // Ejecutamos el SQL
             context.Database.ExecuteSqlRaw(sql);
             Console.WriteLine(">>> SEED COMPLETADO EXITOSAMENTE.");
         }
         else {
-            Console.WriteLine($">>> ERROR: No se encontró el archivo en: {sqlPath}");
+            Console.WriteLine(">>> ERROR: No se encontró SeedData.sql.");
+            // Listar archivos para saber dónde quedó realmente
+            Console.WriteLine(">>> Contenido del directorio actual:");
+            foreach (var f in Directory.GetFiles(baseDir, "*.*", SearchOption.AllDirectories)
+                                       .Where(s => s.EndsWith(".sql"))) {
+                Console.WriteLine($"--- Encontrado: {f}");
+            }
         }
     }
     catch (Exception ex) {
-        Console.WriteLine($">>> ERROR CRÍTICO: {ex.Message}");
+        Console.WriteLine($">>> ERROR CRÍTICO EN SEED: {ex.Message}");
     }
 }
 
