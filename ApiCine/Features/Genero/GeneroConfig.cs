@@ -14,7 +14,6 @@ namespace ApiCine.Features.Genero {
             builder.HasIndex(g => g.Nombre)
                 .IsUnique();
 
-
         }
     }
 }
