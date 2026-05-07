@@ -40,14 +40,14 @@ VALUES (
     'admin',
     'Admin General',
     'admin',    
-    '$2a$11$JUa6WFSdq3YSLaEiebLDk.NffdIv2CIAOYtyvz3ZKSc1yxhwcdJU6',
+    '$2a$11$iKApQgertluPRENCUQLYE.KgOeJjCnENblNYPRibDLoQPOr4p7HQ.',--admin
     'Admin'
 );
 
 INSERT INTO Usuario (Id, Username, Nombre, Email, Password, Role) 
-VALUES (2, 'juan_perez', 'Juan Perez', 'juan@gmail.com', '$2a$11$qR77E6A.F3E6W1fN.O5.O.UfU6M6u5V8eYf.Wk2m9Z6Y7xW1L2Z2.', 'Cliente');
+VALUES (2, 'juan_perez', 'Juan Perez', 'juan@gmail.com', '$2a$11$M.Jz02Z.IP7LOMyBb70NS.pUopbrwmDRllulLrIoUHS0oO/0YvY8W', 'Cliente');-- 12345678
 INSERT INTO Usuario (Id, Username, Nombre, Email, Password, Role) 
-VALUES (3, 'maria_cine', 'Maria Garcia', 'maria@gmail.com', '$2a$11$qR77E6A.F3E6W1fN.O5.O.UfU6M6u5V8eYf.Wk2m9Z6Y7xW1L2Z2.', 'Cliente');
+VALUES (3, 'maria_cine', 'Maria Garcia', 'maria@gmail.com', '$2a$11$M.Jz02Z.IP7LOMyBb70NS.pUopbrwmDRllulLrIoUHS0oO/0YvY8W', 'Cliente');-- 12345678
 
 -- 7. FUNCIONES (Programadas para el futuro)
 INSERT INTO Funcion (Id, Precio, FechaHora, PeliculaId, SalaId) 

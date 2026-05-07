@@ -18,9 +18,6 @@ namespace ApiCine.Features.Auth.Controller {
             return Ok(new { token });
         }
 
-        [HttpGet("hash")]
-        public string GenerateHash() {
-            return BCrypt.Net.BCrypt.HashPassword("admin*");
-        }
+       
     }
 }
