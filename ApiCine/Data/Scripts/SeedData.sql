@@ -39,7 +39,7 @@ VALUES (
     1,
     'admin',
     'Admin General',
-    'admin@apicine.com',    
+    'admin',    
     '$2a$11$JUa6WFSdq3YSLaEiebLDk.NffdIv2CIAOYtyvz3ZKSc1yxhwcdJU6',
     'Admin'
 );
