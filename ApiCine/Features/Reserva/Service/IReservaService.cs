@@ -6,5 +6,6 @@ namespace ApiCine.Features.Reserva.Service {
         Task<ReservaResponseDto> GetById(long id);
         Task<IEnumerable<ReservaResponseDto>> GetByUsuario(long usuarioId);
         Task<bool> CancelarReserva(long id);
+
     }
 }
