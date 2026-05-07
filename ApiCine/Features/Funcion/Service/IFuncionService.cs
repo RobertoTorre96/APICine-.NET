@@ -13,6 +13,6 @@ namespace ApiCine.Features.Funcion.Service {
         Task<FuncionResponseDetalleDto> FindById(long id);
 
         Task<bool> Delete(long id);
-        Task<List<AsientoResponseDto>> GetAsientosDisponibles(long funcionId)
+        Task<List<AsientoResponseDto>> GetAsientosDisponibles(long funcionId);
     }
 }
