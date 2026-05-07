@@ -1,4 +1,6 @@
-﻿using ApiCine.Features.Funcion.DTOs;
+﻿using ApiCine.Features.Asiento;
+using ApiCine.Features.Asiento.DTOs;
+using ApiCine.Features.Funcion.DTOs;
 
 namespace ApiCine.Features.Funcion.Service {
     public interface IFuncionService {
@@ -11,5 +13,6 @@ namespace ApiCine.Features.Funcion.Service {
         Task<FuncionResponseDetalleDto> FindById(long id);
 
         Task<bool> Delete(long id);
+        Task<List<AsientoResponseDto>> GetAsientosDisponibles(long funcionId)
     }
 }

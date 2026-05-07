@@ -5,8 +5,6 @@ namespace ApiCine.Features.Reserva.DTOs {
         [Required(ErrorMessage = "La función es obligatoria.")]
         public long FuncionId { get; set; }
 
-        [Required(ErrorMessage = "El usuario es obligatorio.")]
-        public long UsuarioId { get; set; }
 
         [Required(ErrorMessage = "Debes seleccionar al menos un asiento.")]
         [MinLength(1, ErrorMessage = "La reserva debe tener al menos un asiento.")]

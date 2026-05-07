@@ -1,4 +1,5 @@
-﻿using ApiCine.Features.Funcion.DTOs;
+﻿using ApiCine.Features.Asiento.DTOs;
+using ApiCine.Features.Funcion.DTOs;
 using ApiCine.Features.Funcion.Service;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -53,5 +54,12 @@ namespace ApiCine.Features.Funcion {
             return NoContent(); // 204 No Content es el estándar para borrados exitosos
         }
 
+
+        [HttpGet("{funcionId}/asientos-disponibles")]
+        public async Task<ActionResult<List<AsientoResponseDto>>> GetDisponibles(long funcionId)
+        {
+            var result = await _service.GetAsientosDisponibles(funcionId);
+            return Ok(result);
+        }
     }
 }

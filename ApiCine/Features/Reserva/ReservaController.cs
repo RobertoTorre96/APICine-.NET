@@ -18,10 +18,14 @@ namespace ApiCine.Features.Reserva {
 
         // POST: api/reserva
         [HttpPost]
-        public async Task<ActionResult<ReservaResponseDto>> Post([FromBody] ReservaRequestDto request) {
-            // Gracias a tus Exceptions personalizadas, si algo falla, 
-            // el Middleware devolverá el mensaje correcto (400 o 404).
-            var resultado = await _reservaService.RealizarReserva(request);
+        public async Task<ActionResult<ReservaResponseDto>> RealizarReserva([FromBody] ReservaRequestDto request) {
+
+            var userIdClaim = User.FindFirst("userId")?.Value;
+            if (userIdClaim == null) return Unauthorized();
+
+            var userId = long.Parse(userIdClaim);
+
+            var resultado = await _reservaService.RealizarReserva(request, userId);
 
             // Retornamos 201 Created con la ruta para consultar la reserva
             return CreatedAtAction(nameof(GetById), new { id = resultado.Id }, resultado);

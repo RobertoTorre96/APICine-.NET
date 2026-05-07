@@ -21,7 +21,7 @@ namespace ApiCine.Features.Reserva.Service {
 
 
 
-        public async Task<ReservaResponseDto> RealizarReserva(ReservaRequestDto request) {
+        public async Task<ReservaResponseDto> RealizarReserva(ReservaRequestDto request, long userId) {
             FuncionEntity funcion = await _context.Funcion
                 .Include(f => f.Pelicula)
                 .Include(f => f.Sala)
@@ -35,8 +35,10 @@ namespace ApiCine.Features.Reserva.Service {
                     var reserva = _mapper.Map<ReservaEntity>(request);
                     reserva.Cod = $"RES-{Guid.NewGuid().ToString()[..8].ToUpper()}";
                     reserva.Fecha = DateTime.Now;
+                    reserva.UsuarioId = userId;
 
-                    _context.Reserva.Add(reserva);
+
+                _context.Reserva.Add(reserva);
                     await _context.SaveChangesAsync();
 
                     await ValidarYAgregarAsientos(reserva.Id, funcion,request.AsientosIds);

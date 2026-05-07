@@ -1,5 +1,8 @@
 ﻿using ApiCine.Data;
 using ApiCine.Exceptions;
+using ApiCine.Features.Asiento;
+using ApiCine.Features.Asiento.DTOs;
+using ApiCine.Features.Enums;
 using ApiCine.Features.Funcion.DTOs;
 using ApiCine.Features.Pelicula;
 using ApiCine.Features.Sala;
@@ -116,6 +119,32 @@ namespace ApiCine.Features.Funcion.Service {
             _context.Funcion.Remove(entity);
             await _context.SaveChangesAsync();
             return true;
+        }
+
+        public async Task<List<AsientoResponseDto>> GetAsientosDisponibles(long funcionId)
+        {
+            var funcion = await _context.Funcion
+                .Include(f => f.Sala)
+                .FirstOrDefaultAsync(f => f.Id == funcionId)
+                ?? throw new NotFoundException($"Función {funcionId} no encontrada");
+
+            var asientosDisponibles = await _context.Asiento
+                .Where(a => a.SalaId == funcion.SalaId)
+                .Where(a => !_context.ReservaAsiento
+                    .Any(ra =>
+                        ra.FuncionId == funcionId &&
+                        ra.AsientoId == a.Id &&
+                        ra.Reserva.Estado != EEstadoReserva.Cancelada))
+                .ToListAsync();
+
+            return asientosDisponibles
+                .Select(a => new AsientoResponseDto
+                {
+                    Id = a.Id,
+                    Fila = a.Fila,
+                    Numero = a.Numero
+                })
+                .ToList();
         }
     }
 }
