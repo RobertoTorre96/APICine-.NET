@@ -11,7 +11,7 @@ namespace ApiCine.Features.Relaciones.ReservaAsientos {
                 .HasDatabaseName("IX_ReservaAsiento_FuncionId_AsientoId");
 
             builder.HasOne(ra => ra.Reserva)
-                .WithMany(r => r.reservaAsientos)
+                .WithMany(r => r.ReservaAsientos)
                 .HasForeignKey(ra => ra.ReservaId)
                 .OnDelete(DeleteBehavior.Cascade);
             builder.HasOne(ra => ra.Asiento)

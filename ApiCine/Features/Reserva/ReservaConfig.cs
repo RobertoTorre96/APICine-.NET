@@ -26,7 +26,7 @@ namespace ApiCine.Features.Reserva {
                 .HasForeignKey(r=>r.UsuarioId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            builder.HasMany(r => r.reservaAsientos)
+            builder.HasMany(r => r.ReservaAsientos)
                 .WithOne(ra => ra.Reserva)
                 .HasForeignKey(ra=>ra.ReservaId)
                 .OnDelete(DeleteBehavior.Cascade);

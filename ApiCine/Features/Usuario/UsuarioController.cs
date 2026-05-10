@@ -15,37 +15,25 @@ namespace ApiCine.Features.Usuario {
         }
 
         [HttpPost]
-        public async Task<ActionResult<UsuarioResponseDto>> Registrar([FromBody] UsuarioRequestDto request) {
-            var resultado = await _usuarioService.Registrar(request);
+        public async Task<ActionResult<UsuarioResponseDto>> Create([FromBody] UsuarioRequestDto request) {
+            var resultado = await _usuarioService.Create(request);
             // Retorna un 201 Created con la ubicación del nuevo recurso
-            return CreatedAtAction(nameof(GetById), new { id = resultado.Id }, resultado);
+            return CreatedAtAction(nameof(FindById), new { id = resultado.Id }, resultado);
         }
 
 
-        [HttpPost("login")] // La ruta final será api/usuario/login
-        [AllowAnonymous]    // Cualquiera puede intentar loguearse
-        public async Task<ActionResult<object>> Login([FromBody] UsuarioLoginRequestDto request) {
-            // El Service devuelve el string del Token
-            var token = await _usuarioService.Login(request);
-
-            // Retornamos un objeto anónimo con el token
-            return Ok(new {
-                Token = token,
-                Type = "Bearer"
-            });
-        }
 
 
         [Authorize(Roles = "Admin")]
         [HttpGet("{id}")]
-        public async Task<ActionResult<UsuarioResponseDto>> GetById(long id) {
-            return Ok(await _usuarioService.GetById(id));
+        public async Task<ActionResult<UsuarioResponseDto>> FindById(long id) {
+            return Ok(await _usuarioService.FindById(id));
         }
 
         [Authorize(Roles = "Admin")]
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<UsuarioResponseDto>>> GetAll() {
-            return Ok(await _usuarioService.GetAll());
+        public async Task<ActionResult<IEnumerable<UsuarioResponseDto>>> FindAll() {
+            return Ok(await _usuarioService.FindAll());
         }
 
     }

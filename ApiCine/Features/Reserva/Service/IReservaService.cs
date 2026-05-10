@@ -2,10 +2,10 @@
 
 namespace ApiCine.Features.Reserva.Service {
     public interface IReservaService {
-        Task<ReservaResponseDto> RealizarReserva(ReservaRequestDto request,long userId);
-        Task<ReservaResponseDto> GetById(long id);
-        Task<IEnumerable<ReservaResponseDto>> GetByUsuario(long usuarioId);
-        Task<bool> CancelarReserva(long id);
+        Task<ReservaResponseDto> Create(ReservaRequestDto request,long userId);
+        Task<ReservaResponseDto> FindById(long id);
+        Task<IEnumerable<ReservaResponseDto>> FindByUsuario(long usuarioId);
+        Task<bool> Cancel(long id);
 
     }
 }

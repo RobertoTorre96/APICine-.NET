@@ -21,12 +21,12 @@ namespace ApiCine.Features.Reserva.Service {
 
 
 
-        public async Task<ReservaResponseDto> RealizarReserva(ReservaRequestDto request, long userId) {
+        public async Task<ReservaResponseDto> Create(ReservaRequestDto request, long userId) {
             FuncionEntity funcion = await _context.Funcion
                 .Include(f => f.Pelicula)
                 .Include(f => f.Sala)
                 .Include(f => f.ReservaAsientos)
-                    .ThenInclude(ra => ra.Reserva) // <--- AGREGÁ ESTO
+                    .ThenInclude(ra => ra.Reserva) 
                 .FirstOrDefaultAsync(f => f.Id == request.FuncionId)
                 ?? throw new NotFoundException($"Funcion con id {request.FuncionId} no encontrada");
 
@@ -41,11 +41,11 @@ namespace ApiCine.Features.Reserva.Service {
                 _context.Reserva.Add(reserva);
                     await _context.SaveChangesAsync();
 
-                    await ValidarYAgregarAsientos(reserva.Id, funcion,request.AsientosIds);
+                    await ValidAndAddAsientos(reserva.Id, funcion,request.AsientosIds);
                     await _context.SaveChangesAsync();
                     await transaction.CommitAsync();
 
-                    return await GetById(reserva.Id);
+                    return await FindById(reserva.Id);
                 } catch (Exception ex) {
                     await transaction.RollbackAsync();
                     if (ex is BadRequestException || ex is NotFoundException) {
@@ -56,7 +56,7 @@ namespace ApiCine.Features.Reserva.Service {
 
             }
         
-        public async Task<ReservaResponseDto> GetById(long id ) {
+        public async Task<ReservaResponseDto> FindById(long id ) {
             var reserva = await _context.Reserva
              .Include(r => r.Usuario)        
              .Include(r => r.Funcion)
@@ -64,7 +64,7 @@ namespace ApiCine.Features.Reserva.Service {
                      .ThenInclude(p => p.PeliculaGeneros)                           
              .Include(r => r.Funcion)
                  .ThenInclude(f => f.Sala)        
-             .Include(r => r.reservaAsientos)
+             .Include(r => r.ReservaAsientos)
                  .ThenInclude(ra => ra.Asiento)
              .FirstOrDefaultAsync(r => r.Id == id)
              ?? throw new NotFoundException($"La reserva con ID {id} no existe.");
@@ -72,11 +72,11 @@ namespace ApiCine.Features.Reserva.Service {
             return _mapper.Map<ReservaResponseDto>(reserva);
         }
 
-        public async Task<IEnumerable<ReservaResponseDto>> GetByUsuario(long usuarioId) {
+        public async Task<IEnumerable<ReservaResponseDto>> FindByUsuario(long usuarioId) {
             var reservas = await _context.Reserva
                            .Include(r => r.Funcion).ThenInclude(f => f.Pelicula)
                            .Include(r => r.Funcion).ThenInclude(f => f.Sala)
-                           .Include(r => r.reservaAsientos).ThenInclude(ra => ra.Asiento)
+                           .Include(r => r.ReservaAsientos).ThenInclude(ra => ra.Asiento)
                            .Where(r => r.UsuarioId == usuarioId)
                            .OrderByDescending(r => r.Fecha) 
                            .ToListAsync();
@@ -84,55 +84,11 @@ namespace ApiCine.Features.Reserva.Service {
         }
 
 
-        private async Task ValidarYAgregarAsientos(long reservaId, FuncionEntity funcion, List<long> asientosIds) {
 
-            // 1. ESCUDOS INICIALES (Rápido, sin entrar al bucle)
-            if (asientosIds.Distinct().Count() != asientosIds.Count) {
-                throw new BadRequestException("No puedes seleccionar el mismo asiento más de una vez.");
-            }
-
-            int capacidadTotal = funcion.Sala.CantidadFilas * funcion.Sala.CantidadColumnas;
-
-            // Contamos solo las reservas que NO están canceladas para ver la ocupación real
-            int ocupadosReales = funcion.ReservaAsientos
-                .Count(ra => ra.Reserva.Estado != EEstadoReserva.Cancelada);
-
-            if (ocupadosReales + asientosIds.Count > capacidadTotal) {
-                throw new BadRequestException("Lo sentimos, no hay suficientes lugares disponibles en esta función.");
-            }
-
-            // 2. BUCLE DE VALIDACIÓN Y CARGA
-            foreach (var asientoId in asientosIds) {
-                var asiento = await _context.Asiento.FindAsync(asientoId)
-                    ?? throw new NotFoundException($"El asiento con ID {asientoId} no existe.");
-
-                if (asiento.SalaId != funcion.SalaId) {
-                    throw new BadRequestException($"El asiento {asiento.Fila}{asiento.Numero} no pertenece a esta sala.");
-                }
-
-                // VALIDACIÓN CLAVE: ¿Está ocupado por alguien que NO haya cancelado?
-                bool ocupado = await _context.ReservaAsiento.AnyAsync(ra =>
-                    ra.FuncionId == funcion.Id &&
-                    ra.AsientoId == asientoId &&
-                    ra.Reserva.Estado != EEstadoReserva.Cancelada); 
-
-                if (ocupado) {
-                    throw new BadRequestException($"El asiento {asiento.Fila}{asiento.Numero} ya está reservado.");
-                }
-
-                var reservaAsiento = new ReservaAsientoEntity {
-                    ReservaId = reservaId,
-                    AsientoId = asientoId,
-                    FuncionId = funcion.Id
-                };
-                _context.ReservaAsiento.Add(reservaAsiento);
-            }
-        }
-
-        public async Task<bool> CancelarReserva(long id) {
+        public async Task<bool> Cancel(long id) {
             // 1. Buscamos la reserva
             var reserva = await _context.Reserva
-                .Include(r => r.reservaAsientos) 
+                .Include(r => r.ReservaAsientos) 
                 .FirstOrDefaultAsync(r => r.Id == id)
                 ?? throw new NotFoundException($"La reserva con ID {id} no existe.");
 
@@ -152,6 +108,76 @@ namespace ApiCine.Features.Reserva.Service {
 
             return true;
         }
+
+        private async Task ValidAndAddAsientos(long reservaId, FuncionEntity funcion, List<long> asientosIds)
+        {
+
+
+            if (asientosIds == null || !asientosIds.Any())
+            {
+                throw new BadRequestException("Debe seleccionar al menos un asiento.");
+            }
+
+            if (asientosIds.Distinct().Count() != asientosIds.Count)
+            {
+                throw new BadRequestException("No puedes seleccionar el mismo asiento más de una vez.");
+            }
+
+            // 2. CARGA DE DATOS EN BLOQUE (Evita el problema N+1)
+
+            // Traemos todos los detalles de los asientos solicitados en UNA sola consulta
+            var asientosSolicitados = await _context.Asiento
+                .Where(a => asientosIds.Contains(a.Id))
+                .ToListAsync();
+
+            if (asientosSolicitados.Count != asientosIds.Count)
+            {
+                throw new NotFoundException("Uno o más asientos seleccionados no existen.");
+            }
+
+            // Traemos todos los IDs de asientos ya ocupados para esta función en UNA sola consulta
+            var idsAsientosOcupados = await _context.ReservaAsiento
+                .Where(ra => ra.FuncionId == funcion.Id && ra.Reserva.Estado != EEstadoReserva.Cancelada)
+                .Select(ra => ra.AsientoId)
+                .ToListAsync();
+
+            // 3. VALIDACIÓN DE CAPACIDAD (Usando los datos ya cargados)
+            int capacidadTotal = funcion.Sala.CantidadFilas * funcion.Sala.CantidadColumnas;
+            if (idsAsientosOcupados.Count + asientosSolicitados.Count > capacidadTotal)
+            {
+                throw new BadRequestException("Lo sentimos, no hay suficientes lugares disponibles.");
+            }
+
+            // 4. BUCLE DE PROCESAMIENTO (Ahora es ultra rápido porque no consulta la DB)
+            foreach (var asiento in asientosSolicitados)
+            {
+
+                // Validar que el asiento pertenezca a la sala de la función
+                if (asiento.SalaId != funcion.SalaId)
+                {
+                    throw new BadRequestException($"El asiento {asiento.Fila}{asiento.Numero} no pertenece a esta sala.");
+                }
+
+                // Validar si está ocupado comparando con la lista que trajimos antes
+                if (idsAsientosOcupados.Contains(asiento.Id))
+                {
+                    throw new BadRequestException($"El asiento {asiento.Fila}{asiento.Numero} ya está reservado.");
+                }
+
+                // Si pasa todo, lo agregamos al contexto
+                var reservaAsiento = new ReservaAsientoEntity
+                {
+                    ReservaId = reservaId,
+                    AsientoId = asiento.Id,
+                    FuncionId = funcion.Id
+                };
+
+                _context.ReservaAsiento.Add(reservaAsiento);
+
+
+            }
+        }
+
     }
-        
+
 }

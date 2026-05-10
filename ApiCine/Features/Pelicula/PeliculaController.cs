@@ -27,7 +27,7 @@ namespace ApiCine.Features.Pelicula {
 
         [AllowAnonymous]
         [HttpGet]
-        public async Task<ActionResult<PageResponseDto<PeliculaResponseDto>>> GetAll([FromQuery] int numeroPagina = 1,
+        public async Task<ActionResult<PageResponseDto<PeliculaResponseDto>>> FindAll([FromQuery] int numeroPagina = 1,
                                                                                      [FromQuery] int tamPagina = 10) {
             var peliculas = await _peliculaService.FindAll(numeroPagina, tamPagina);
             return Ok(peliculas);
@@ -36,7 +36,7 @@ namespace ApiCine.Features.Pelicula {
 
         [AllowAnonymous]
         [HttpGet("{id}")]
-        public async Task<ActionResult<PeliculaResponseDto>> GetById([FromRoute] long id) {
+        public async Task<ActionResult<PeliculaResponseDto>> FindById([FromRoute] long id) {
             var pelicula = await _peliculaService.FindById(id);
             return Ok(pelicula);
 

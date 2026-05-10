@@ -12,7 +12,7 @@ namespace ApiCine.Features.Reserva {
         public DateTime Fecha { get; set; }
         public long FuncionId { get; set; }
         public FuncionEntity Funcion { get; set; } = null!;
-        public ICollection<ReservaAsientoEntity> reservaAsientos { get; set; }= new List<ReservaAsientoEntity>();
+        public ICollection<ReservaAsientoEntity> ReservaAsientos { get; set; }= new List<ReservaAsientoEntity>();
 
         public long UsuarioId { get; set; }
         public UsuarioEntity Usuario { get; set; } = null!;

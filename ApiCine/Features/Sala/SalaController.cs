@@ -17,8 +17,8 @@ namespace ApiCine.Features.Sala {
         }
 
         [HttpPost]
-        public async Task<ActionResult<SalaResponseDto>> Crear([FromBody] SalaRequestDto request) {
-            var response = await _service.Crear(request);
+        public async Task<ActionResult<SalaResponseDto>> Create([FromBody] SalaRequestDto request) {
+            var response = await _service.Create(request);
             return CreatedAtAction(nameof(FindById), new { id = response.Id }, response);
         }
 

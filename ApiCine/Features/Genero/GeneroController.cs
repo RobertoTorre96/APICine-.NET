@@ -18,7 +18,7 @@ namespace ApiCine.Features.Genero {
 
         [AllowAnonymous]
         [HttpGet]
-        public async Task<IActionResult> GetAll() {
+        public async Task<IActionResult> FindAll() {
             var generos = await _generoService.FindAll();
             return Ok(generos);
         }
@@ -26,7 +26,7 @@ namespace ApiCine.Features.Genero {
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] GeneroRequestDto generoRequestDto) {
             var generoCreado = await _generoService.Create(generoRequestDto);
-            return CreatedAtAction(nameof(GetAll), new { id = generoCreado.Id }, generoCreado);
+            return CreatedAtAction(nameof(FindAll), new { id = generoCreado.Id }, generoCreado);
         }
 
         [HttpDelete("{id}")]

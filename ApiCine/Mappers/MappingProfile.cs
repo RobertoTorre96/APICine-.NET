@@ -82,7 +82,7 @@
                     .ForMember(dest => dest.Cod, opt => opt.Ignore()) // Lo generás vos (ej: RES-XJ82)
                     .ForMember(dest => dest.Fecha, opt => opt.MapFrom(src => DateTime.Now))
                     // Los AsientosIds los procesarás en el Service para llenar la tabla intermedia
-                    .ForMember(dest => dest.reservaAsientos, opt => opt.Ignore());
+                    .ForMember(dest => dest.ReservaAsientos, opt => opt.Ignore());
 
                 // 2. De Entidad a Response (El Ticket Final)
                 CreateMap<ReservaEntity, ReservaResponseDto>()
@@ -97,13 +97,13 @@
 
                     // Armamos la lista de strings amigables: "Fila A - Asiento 5"
                     .ForMember(dest => dest.AsientosReservados, opt => opt.MapFrom(src =>
-                        src.reservaAsientos.Select(ra => $"Fila {ra.Asiento.Fila} - Asiento {ra.Asiento.Numero}").ToList()))
+                        src.ReservaAsientos.Select(ra => $"Fila {ra.Asiento.Fila} - Asiento {ra.Asiento.Numero}").ToList()))
 
                     .ForMember(dest => dest.Estado, opt => opt.MapFrom(src => src.Estado.ToString()))
 
                     // Calculamos el precio total: Cantidad de asientos * Precio de la función
                     .ForMember(dest => dest.PrecioTotal, opt => opt.MapFrom(src =>
-                        src.reservaAsientos.Count * src.Funcion.Precio));
+                        src.ReservaAsientos.Count * src.Funcion.Precio));
 
 
 

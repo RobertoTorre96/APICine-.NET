@@ -15,7 +15,7 @@ namespace ApiCine.Features.Sala.Service {
             _mapper = mapper;
         }
 
-        public async Task<SalaResponseDto> Crear(SalaRequestDto request) {
+        public async Task<SalaResponseDto> Create(SalaRequestDto request) {
 
             string codRequet = request.Nombre.Trim().ToUpper();
 
