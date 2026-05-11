@@ -1,5 +1,6 @@
 ﻿using ApiCine.Data;
 using ApiCine.Exceptions;
+using ApiCine.Features.Role;
 using ApiCine.Features.Usuario.DTOs;
 using AutoMapper;
 using BCrypt.Net;
@@ -21,14 +22,18 @@ namespace ApiCine.Features.Usuario.Service {
         }
 
         public async Task<UsuarioResponseDto> Create(UsuarioRequestDto request) {
-            // Validar si el email ya existe
+
             if (await _context.Usuario.AnyAsync(u => u.Email == request.Email)) {
                 throw new BadRequestException("El email ya se encuentra registrado.");
             }
 
-            // Validar si el username ya existe
             if (await _context.Usuario.AnyAsync(u => u.Username == request.Username)) {
                 throw new BadRequestException("El nombre de usuario ya está en uso.");
+            }
+
+            
+            if (!Enum.IsDefined(typeof(ERole), request.Role)){
+                throw new BadRequestException("El número de rol enviado no es válido (solo 1 o 2).");
             }
 
             var usuario = _mapper.Map<UsuarioEntity>(request);

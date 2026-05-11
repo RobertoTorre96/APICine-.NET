@@ -1,6 +1,8 @@
 ﻿namespace ApiCine.Features.Role {
     public enum ERole {
-        Cliente=1,
-        Admin=2
+        /// <summary>Usuario con permisos básicos</summary>
+        Cliente = 1,
+        /// <summary>Usuario con acceso total al sistema</summary>
+        Admin = 2
     }
 }

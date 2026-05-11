@@ -16,6 +16,10 @@ namespace ApiCine.Features.Usuario.DTOs {
         [Required]
         [EmailAddress(ErrorMessage = "Formato de email inválido")]
         public string Email { get; set; }= string.Empty;
+
+        /// <summary>
+        /// Rol del usuario: 1 = Cliente, 2 = Admin
+        /// </summary>
         [Required(ErrorMessage = "El rol es obligatorio")]
         public int  Role { get; set; }
 
