@@ -15,6 +15,14 @@ namespace ApiCine.Features.Usuario {
         }
 
         [HttpPost]
+        /// <summary>
+        /// Registra un nuevo usuario.
+        /// </summary>
+        /// <remarks>
+        /// **Instrucciones para el campo Role:**
+        /// - Use **1** para asignar el rol de **Cliente**.
+        /// - Use **2** para asignar el rol de **Admin**.
+        /// </remarks>
         public async Task<ActionResult<UsuarioResponseDto>> Create([FromBody] UsuarioRequestDto request) {
             var resultado = await _usuarioService.Create(request);
             // Retorna un 201 Created con la ubicación del nuevo recurso
