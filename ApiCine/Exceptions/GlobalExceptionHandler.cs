@@ -23,8 +23,7 @@ namespace ApiCine.Exceptions {
                 ValidationException => (StatusCodes.Status400BadRequest, "Error de validación"),
                 BadRequestException => (StatusCodes.Status400BadRequest, "Solicitud incorrecta"),
                 // Cualquier otro error no controlado (como fallos de base de datos inesperados)
-                _ => (StatusCodes.Status500InternalServerError, "Error interno del servidor")
-            };
+                _ => (StatusCodes.Status500InternalServerError, "Error interno del servidor")            };
 
             var problemDetails = new ProblemDetails {
                 Status = statusCode,
