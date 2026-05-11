@@ -21,7 +21,7 @@ namespace ApiCine.Features.Usuario.Service {
             _mapper = mapper;
         }
 
-        public async Task<UsuarioResponseDto> Create(UsuarioRequestDto request) {
+        public async Task<UsuarioResponseDto> Create(UsuarioRequestDto request, string? currentUserRole){
 
             if (await _context.Usuario.AnyAsync(u => u.Email == request.Email)) {
                 throw new BadRequestException("El email ya se encuentra registrado.");
@@ -36,9 +36,12 @@ namespace ApiCine.Features.Usuario.Service {
                 throw new BadRequestException("El número de rol enviado no es válido (solo 1 o 2).");
             }
 
-            var usuario = _mapper.Map<UsuarioEntity>(request);
+            if (request.Role == (int)ERole.Admin && currentUserRole != ERole.Admin.ToString())
+            {
+                throw new BadRequestException("No tienes permisos para crear una cuenta de Administrador.");
+            }
 
-            // Hasheo de seguridad para la password
+            var usuario = _mapper.Map<UsuarioEntity>(request);
             usuario.Password = BCrypt.Net.BCrypt.HashPassword(request.Password);
 
             _context.Usuario.Add(usuario);

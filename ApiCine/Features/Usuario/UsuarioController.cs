@@ -2,6 +2,7 @@
 using ApiCine.Features.Usuario.Service;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace ApiCine.Features.Usuario {
     [ApiController]
@@ -23,10 +24,15 @@ namespace ApiCine.Features.Usuario {
         /// - Use **1** para asignar el rol de **Cliente**.
         /// - Use **2** para asignar el rol de **Admin**.
         /// </remarks>
-        [HttpPost]        
-        public async Task<ActionResult<UsuarioResponseDto>> Create([FromBody] UsuarioRequestDto request) {
-            var resultado = await _usuarioService.Create(request);
-            // Retorna un 201 Created con la ubicación del nuevo recurso
+        [HttpPost]
+        public async Task<ActionResult<UsuarioResponseDto>> Create([FromBody] UsuarioRequestDto request)
+        {
+            // Extraemos el rol del usuario que está logueado (si es que hay uno)
+            var currentUserRole = User.FindFirst(ClaimTypes.Role)?.Value;
+
+            // Pasamos ese rol al servicio para que valide
+            var resultado = await _usuarioService.Create(request, currentUserRole);
+
             return CreatedAtAction(nameof(FindById), new { id = resultado.Id }, resultado);
         }
 
