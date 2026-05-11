@@ -8,8 +8,7 @@ API REST desarrollada con .NET 8 y Entity Framework Core que implementa un siste
 
 Swagger UI disponible en:
 
-https://apicine-net.onrender.com/swagger/index.html
-
+ https://apicine-net.onrender.com
 ---
 
 ## 🚀 Key Features
