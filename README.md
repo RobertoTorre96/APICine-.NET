@@ -51,7 +51,7 @@ La base de datos se recrea y se puebla automáticamente en cada arranque (`Ensur
 
 | Username     | Contraseña   | Rol      | Email              |
 |--------------|--------------|----------|---------------------|
-| `admin`      | *(hasheada)* | Admin    | admin                |
+| `admin`      | `admin`      | Admin    | admin                |
 | `juan_perez` | `12345678`   | Cliente  | juan@gmail.com       |
 | `maria_cine` | `12345678`   | Cliente  | maria@gmail.com      |
 
