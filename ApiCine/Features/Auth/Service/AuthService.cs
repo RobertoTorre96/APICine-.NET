@@ -19,10 +19,10 @@ namespace ApiCine.Features.Auth.Service {
             var user = _context.Usuario.FirstOrDefault(x => x.Email == email);
 
             if (user == null)
-                throw new Exception("Usuario no encontrado");
+                throw new BadHttpRequestException("Usuario no encontrado");
 
             if (!BCrypt.Net.BCrypt.Verify(password, user.Password))
-                throw new Exception("Password incorrecto");
+                throw new BadHttpRequestException("Password incorrecto");
 
             return GenerateToken(user);
         }
