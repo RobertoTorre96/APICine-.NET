@@ -63,7 +63,7 @@ La base de datos se recrea y se puebla automáticamente en cada arranque (`Ensur
 
 > ⏳ El servicio está en un hosting gratuito (Render), así que la primera request puede tardar unos segundos en "despertar" el servidor si estuvo inactivo.
 
-> ⚠️ Estas son credenciales de un entorno de **prueba/desarrollo**, no de producción real. Las contraseñas están hasheadas con BCrypt en la base de datos (`Data/Scripts/SeedData.sql`).
+
 
 ## 🏗 Arquitectura
 La aplicación sigue una arquitectura en capas:
