@@ -4,7 +4,10 @@ API REST para la gestión de un sistema de cine: películas, géneros, salas, fu
 
 Construida con **.NET 8**, **Entity Framework Core** (SQLite) y **AutoMapper**, siguiendo una arquitectura por *features* (vertical slices).
 
+Este proyecto fue desarrollado como práctica/portfolio para demostrar el diseño de una API REST completa: autenticación con JWT y roles, relaciones muchos-a-muchos, validaciones de negocio (solapamiento de horarios, disponibilidad de asientos), manejo centralizado de errores y despliegue en la nube.
+
 🔗 **Demo desplegada en Render:** https://apicine-net.onrender.com
+🔗 **Documentación interactiva (Swagger):** https://apicine-net.onrender.com/index.html
 
 ---
 
@@ -16,6 +19,7 @@ Construida con **.NET 8**, **Entity Framework Core** (SQLite) y **AutoMapper**, 
 - [Instalación y ejecución local](#-instalación-y-ejecución-local)
 - [Variables de entorno](#-variables-de-entorno)
 - [Autenticación](#-autenticación)
+- [Usuarios de prueba (seed)](#-usuarios-de-prueba-seed)
 - [Endpoints de la API](#-endpoints-de-la-api)
 - [Modelo de datos](#-modelo-de-datos)
 - [Manejo de errores](#-manejo-de-errores)
@@ -129,6 +133,25 @@ El token incluye los claims: `username`, `email`, `role` y `userId`, y expira a 
 
 ---
 
+## 👤 Usuarios de prueba (seed)
+
+Al iniciar, la base de datos se siembra automáticamente (`SeedData.sql`) con los siguientes usuarios, listos para usar en `/api/auth/login` sin necesidad de registrar nada:
+
+| Username | Contraseña | Rol | Email |
+|---|---|---|---|
+| `admin` | `admin` | 👑 Admin | `admin` |
+| `juan_perez` | `12345678` | 🙋 Cliente | `juan@gmail.com` |
+| `maria_cine` | `12345678` | 🙋 Cliente | `maria@gmail.com` |
+
+Además, el seed ya carga datos de ejemplo para probar sin crear nada manualmente:
+
+- 3 películas (*Inception*, *The Dark Knight*, *Interstellar*) con sus géneros asociados
+- 2 salas (`IMAX 3D` y `Premium Dolby`) con sus asientos
+- 3 funciones programadas a futuro
+- 1 reserva ya confirmada (de `juan@gmail.com`, asientos A1 y A2 en la Función 1)
+
+---
+
 ## 📚 Endpoints de la API
 
 > 🔒 = requiere JWT · 👑 = requiere rol **Admin** · 🌐 = público (`AllowAnonymous`)
@@ -224,16 +247,20 @@ La forma más rápida de explorar y probar todos los endpoints es a través de *
 
 👉 **https://apicine-net.onrender.com/index.html**
 
-Pasos sugeridos para probar el flujo completo:
+Pasos sugeridos para probar el flujo completo (usando los [usuarios de prueba](#-usuarios-de-prueba-seed) ya sembrados, sin necesidad de registrar nada):
 
 1. Entrá al link de Swagger de arriba.
-2. Expandí **`POST /api/usuario`** y registrá un usuario (podés usar `"Role": 1` para Cliente).
-3. Expandí **`POST /api/auth/login`**, enviá el email y password del usuario creado, y copiá el `token` de la respuesta.
-4. Hacé clic en el botón **`Authorize`** (🔒) en la parte superior de Swagger y pegá el token con el formato:
+2. Expandí **`POST /api/auth/login`** → `Try it out` y enviá, por ejemplo:
+   ```json
+   { "email": "admin", "password": "admin" }
+   ```
+   Copiá el valor de `token` de la respuesta.
+3. Hacé clic en el botón **`Authorize`** (🔒, arriba a la derecha) y pegá el token con el formato:
    ```
    Bearer <tu_token_aquí>
    ```
-5. Ya podés probar los endpoints protegidos (crear salas, funciones, reservas, etc. según tu rol).
+4. Ya podés probar todos los endpoints protegidos: como `admin` podés crear películas/salas/funciones; logueándote como `juan@gmail.com` (password `12345678`) podés ver y cancelar sus reservas o crear una nueva.
+5. Para ver el catálogo sin loguearte, los endpoints marcados como 🌐 (películas, géneros, salas, funciones) son públicos.
 
 > 💡 Nota: al estar en el plan gratuito de Render, el servicio puede "dormirse" tras un período de inactividad. La primera petición luego de estar inactivo puede tardar unos segundos extra en responder mientras la instancia se reactiva.
 
