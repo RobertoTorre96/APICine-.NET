@@ -51,12 +51,17 @@ La base de datos se recrea y se puebla automáticamente en cada arranque (`Ensur
 
 | Username     | Contraseña   | Rol      | Email              |
 |--------------|--------------|----------|---------------------|
-| `admin`      | `admin`      | Admin    | admin                |
+| `admin`      | *(hasheada)* | Admin    | admin                |
 | `juan_perez` | `12345678`   | Cliente  | juan@gmail.com       |
 | `maria_cine` | `12345678`   | Cliente  | maria@gmail.com      |
 
 - El usuario **Admin** tiene acceso a los endpoints de administración (crear películas, salas, funciones, géneros, etc.).
 - Los usuarios **Cliente** permiten probar el flujo de reserva de asientos de punta a punta.
+
+**Swagger UI (demo en vivo):**
+👉 https://apicine-net.onrender.com/index.html
+
+> ⏳ El servicio está en un hosting gratuito (Render), así que la primera request puede tardar unos segundos en "despertar" el servidor si estuvo inactivo.
 
 > ⚠️ Estas son credenciales de un entorno de **prueba/desarrollo**, no de producción real. Las contraseñas están hasheadas con BCrypt en la base de datos (`Data/Scripts/SeedData.sql`).
 
