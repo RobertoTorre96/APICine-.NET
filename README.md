@@ -1,290 +1,80 @@
-# 🎬 ApiCine
-
-API REST para la gestión de un sistema de cine: películas, géneros, salas, funciones, asientos, reservas de usuarios y autenticación con JWT.
-
-Construida con **.NET 8**, **Entity Framework Core** (SQLite) y **AutoMapper**, siguiendo una arquitectura por *features* (vertical slices).
-
-Este proyecto fue desarrollado como práctica/portfolio para demostrar el diseño de una API REST completa: autenticación con JWT y roles, relaciones muchos-a-muchos, validaciones de negocio (solapamiento de horarios, disponibilidad de asientos), manejo centralizado de errores y despliegue en la nube.
-
-🔗 **Demo desplegada en Render:** https://apicine-net.onrender.com
-🔗 **Documentación interactiva (Swagger):** https://apicine-net.onrender.com/index.html
-
----
-
-## 📌 Tabla de contenidos
-
-- [Tecnologías](#-tecnologías)
-- [Arquitectura del proyecto](#-arquitectura-del-proyecto)
-- [Requisitos previos](#-requisitos-previos)
-- [Instalación y ejecución local](#-instalación-y-ejecución-local)
-- [Variables de entorno](#-variables-de-entorno)
-- [Autenticación](#-autenticación)
-- [Usuarios de prueba (seed)](#-usuarios-de-prueba-seed)
-- [Endpoints de la API](#-endpoints-de-la-api)
-- [Modelo de datos](#-modelo-de-datos)
-- [Manejo de errores](#-manejo-de-errores)
-- [🧪 Probar la API con Swagger](#-probar-la-api-con-swagger)
-- [Despliegue en Render](#-despliegue-en-render)
-
----
-
-## 🛠 Tecnologías
-
-| Tecnología | Uso |
-|---|---|
-| .NET 8 / ASP.NET Core Web API | Framework principal |
-| Entity Framework Core 8 + SQLite | Persistencia de datos |
-| AutoMapper 14 | Mapeo entre Entidades y DTOs |
-| JWT Bearer (Microsoft.AspNetCore.Authentication.JwtBearer) | Autenticación y autorización por roles |
-| BCrypt.Net-Next | Hash seguro de contraseñas |
-| Swashbuckle / Swagger | Documentación interactiva de la API |
-| Render | Hosting / despliegue |
-
----
-
-## 🏗 Arquitectura del proyecto
-
-El proyecto está organizado por **features** (módulos de dominio), no por capas técnicas. Cada feature agrupa su Controller, Entity, DTOs, Service/Interface y Config de EF Core:
-
-```
-ApiCine/
-├── Features/
-│   ├── Auth/            → Login y generación de JWT
-│   ├── Usuario/          → Registro y consulta de usuarios
-│   ├── Pelicula/         → CRUD de películas
-│   ├── Genero/           → CRUD de géneros
-│   ├── Sala/             → Salas y generación automática de asientos
-│   ├── Asiento/          → Asientos de cada sala
-│   ├── Funcion/          → Funciones (horarios de proyección)
-│   ├── Reserva/          → Reservas de asientos por función
-│   ├── Relaciones/        → Tablas intermedias (PeliculaGenero, ReservaAsiento)
-│   └── Enums/ , Role/     → Enumerados (EEstadoReserva, ERole)
-├── common/DTOs/           → DTOs compartidos (paginación)
-├── Data/                  → AppDbContext y Scripts/SeedData.sql
-├── Exceptions/            → Excepciones custom + GlobalExceptionHandler
-├── Mappers/               → MappingProfile (AutoMapper)
-└── Program.cs             → Configuración de la app (JWT, Swagger, DI, seed)
-```
-
-Al iniciar, la aplicación **recrea la base de datos SQLite** (`EnsureDeleted` + `EnsureCreated`) y ejecuta un script `SeedData.sql` con datos iniciales de prueba.
-
----
-
-## ✅ Requisitos previos
-
-- [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
-- Un editor como Visual Studio 2022 o VS Code
-
----
-
-## 🚀 Instalación y ejecución local
-
-```bash
-# 1. Cloná el repositorio
-git clone <url-del-repositorio>
-cd ApiCine
-
-# 2. Restaurá los paquetes
-dotnet restore
-
-# 3. Ejecutá la aplicación
-dotnet run --project ApiCine
-```
-
-Por defecto la API queda disponible en:
-
-- HTTP: `http://localhost:5284`
-- HTTPS: `https://localhost:7043`
-
-Al levantar el proyecto en modo `Development`, el navegador se abre automáticamente en `/swagger`. En este proyecto Swagger UI está montado en la **raíz** (`RoutePrefix = string.Empty`), por lo que también se puede acceder directo desde `/`.
-
----
-
-## 🔑 Variables de entorno
-
-| Variable | Descripción | Valor por defecto (dev) |
-|---|---|---|
-| `JWT_SECRET_KEY` | Clave secreta usada para firmar los tokens JWT | Definida en `appsettings.json` / `launchSettings.json` |
-| `ASPNETCORE_ENVIRONMENT` | Entorno de ejecución (`Development` / `Production`) | `Development` |
-
-> ⚠️ En producción (Render), `JWT_SECRET_KEY` debe configurarse como variable de entorno del servicio, **no** dejarse hardcodeada.
-
----
-
-## 🔐 Autenticación
-
-La API usa **JWT Bearer**. El flujo típico es:
-
-1. Registrar un usuario: `POST /api/usuario`
-2. Iniciar sesión: `POST /api/auth/login` → devuelve un `token`
-3. Enviar ese token en el header `Authorization: Bearer <token>` para los endpoints protegidos
-
-El token incluye los claims: `username`, `email`, `role` y `userId`, y expira a las **2 horas**.
-
-### Roles (`ERole`)
-
-| Valor | Rol |
-|---|---|
-| `1` | Cliente |
-| `2` | Admin |
-
-- Solo un usuario **Admin autenticado** puede registrar a otro usuario con rol `Admin`.
-- Los endpoints administrativos (crear/eliminar Película, Género, Sala, Función) requieren rol `Admin`.
-
----
-
-## 👤 Usuarios de prueba (seed)
-
-Al iniciar, la base de datos se siembra automáticamente (`SeedData.sql`) con los siguientes usuarios, listos para usar en `/api/auth/login` sin necesidad de registrar nada:
-
-| Username | Contraseña | Rol | Email |
-|---|---|---|---|
-| `admin` | `admin` | 👑 Admin | `admin` |
-| `juan_perez` | `12345678` | 🙋 Cliente | `juan@gmail.com` |
-| `maria_cine` | `12345678` | 🙋 Cliente | `maria@gmail.com` |
-
-Además, el seed ya carga datos de ejemplo para probar sin crear nada manualmente:
-
-- 3 películas (*Inception*, *The Dark Knight*, *Interstellar*) con sus géneros asociados
-- 2 salas (`IMAX 3D` y `Premium Dolby`) con sus asientos
-- 3 funciones programadas a futuro
-- 1 reserva ya confirmada (de `juan@gmail.com`, asientos A1 y A2 en la Función 1)
-
----
-
-## 📚 Endpoints de la API
-
-> 🔒 = requiere JWT · 👑 = requiere rol **Admin** · 🌐 = público (`AllowAnonymous`)
-
-### Auth (`/api/auth`)
-
-| Método | Ruta | Descripción | Acceso |
-|---|---|---|---|
-| POST | `/api/auth/login` | Login con email y password, devuelve JWT | 🌐 |
-
-### Usuario (`/api/usuario`)
-
-| Método | Ruta | Descripción | Acceso |
-|---|---|---|---|
-| POST | `/api/usuario` | Registra un nuevo usuario (Cliente o Admin) | 🌐 |
-| GET | `/api/usuario/{id}` | Obtiene un usuario por ID | 👑 |
-| GET | `/api/usuario` | Lista todos los usuarios | 👑 |
-
-### Película (`/api/pelicula`)
-
-| Método | Ruta | Descripción | Acceso |
-|---|---|---|---|
-| POST | `/api/pelicula` | Crea una película (con géneros asociados) | 👑 |
-| GET | `/api/pelicula?numeroPagina=1&tamPagina=10` | Lista paginada de películas | 🌐 |
-| GET | `/api/pelicula/{id}` | Obtiene una película por ID | 🌐 |
-
-### Género (`/api/genero`)
-
-| Método | Ruta | Descripción | Acceso |
-|---|---|---|---|
-| GET | `/api/genero` | Lista todos los géneros | 🌐 |
-| POST | `/api/genero` | Crea un género | 👑 |
-| DELETE | `/api/genero/{id}` | Elimina un género | 👑 |
-
-### Sala (`/api/sala`)
-
-| Método | Ruta | Descripción | Acceso |
-|---|---|---|---|
-| POST | `/api/sala` | Crea una sala (genera automáticamente sus asientos según filas/columnas) | 👑 |
-| GET | `/api/sala` | Lista todas las salas | 🌐 |
-| GET | `/api/sala/{id}` | Obtiene una sala por ID | 🌐 |
-| DELETE | `/api/sala/{id}` | Elimina una sala (falla si tiene funciones asociadas) | 👑 |
-
-### Función (`/api/funcion`)
-
-| Método | Ruta | Descripción | Acceso |
-|---|---|---|---|
-| POST | `/api/funcion` | Crea una función (valida solapamiento de horarios en la misma sala) | 👑 |
-| GET | `/api/funcion` | Lista todas las funciones | 🌐 |
-| GET | `/api/funcion/{id}` | Obtiene el detalle de una función | 🌐 |
-| GET | `/api/funcion/pelicula/{peliculaId}` | Lista funciones futuras de una película | 👑 |
-| GET | `/api/funcion/{funcionId}/asientos-disponibles` | Lista los asientos disponibles para esa función | 👑 |
-| DELETE | `/api/funcion/{id}` | Elimina una función (falla si ya tiene reservas) | 👑 |
-
-### Reserva (`/api/reserva`)
-
-| Método | Ruta | Descripción | Acceso |
-|---|---|---|---|
-| POST | `/api/reserva` | Crea una reserva de asientos para una función (usuario autenticado extraído del token) | 🔒 |
-| GET | `/api/reserva/{id}` | Obtiene una reserva por ID | 🔒 |
-| GET | `/api/reserva/usuario/{usuarioId}` | Lista las reservas de un usuario | 🔒 |
-| PATCH | `/api/reserva/{id}/cancelar` | Cancela una reserva | 🔒 |
-
----
-
-## 🗃 Modelo de datos
-
-Entidades principales y sus relaciones:
-
-- **Pelicula** ↔ **Genero** (muchos a muchos, vía `PeliculaGenero`)
-- **Sala** → **Asiento** (una sala tiene muchos asientos, generados automáticamente)
-- **Pelicula** + **Sala** → **Funcion** (una función combina una película, una sala y un horario)
-- **Usuario** + **Funcion** → **Reserva** (una reserva pertenece a un usuario y a una función)
-- **Reserva** ↔ **Asiento** (muchos a muchos, vía `ReservaAsiento`, ligado también a la `Funcion`)
-
-Estados de reserva (`EEstadoReserva`): `Pendiente`, `Confirmada`, `Cancelada`.
-
----
-
-## ⚠️ Manejo de errores
-
-La API centraliza el manejo de errores con un `GlobalExceptionHandler` y `ProblemDetails`, devolviendo respuestas consistentes para:
-
-- `NotFoundException` → 404
-- `BadRequestException` / `ValidationException` → 400
-- `AlreadyExistsException` → 409 (conflicto, ej. género o sala duplicada)
-
----
-
-## 🧪 Probar la API con Swagger
-
-La forma más rápida de explorar y probar todos los endpoints es a través de **Swagger UI**, ya desplegado junto con la API en Render:
-
-👉 **https://apicine-net.onrender.com/index.html**
-
-Pasos sugeridos para probar el flujo completo (usando los [usuarios de prueba](#-usuarios-de-prueba-seed) ya sembrados, sin necesidad de registrar nada):
-
-1. Entrá al link de Swagger de arriba.
-2. Expandí **`POST /api/auth/login`** → `Try it out` y enviá, por ejemplo:
-   ```json
-   { "email": "admin", "password": "admin" }
-   ```
-   Copiá el valor de `token` de la respuesta.
-3. Hacé clic en el botón **`Authorize`** (🔒, arriba a la derecha) y pegá el token con el formato:
-   ```
-   Bearer <tu_token_aquí>
-   ```
-4. Ya podés probar todos los endpoints protegidos: como `admin` podés crear películas/salas/funciones; logueándote como `juan@gmail.com` (password `12345678`) podés ver y cancelar sus reservas o crear una nueva.
-5. Para ver el catálogo sin loguearte, los endpoints marcados como 🌐 (películas, géneros, salas, funciones) son públicos.
-
-> 💡 Nota: al estar en el plan gratuito de Render, el servicio puede "dormirse" tras un período de inactividad. La primera petición luego de estar inactivo puede tardar unos segundos extra en responder mientras la instancia se reactiva.
-
----
-
-## ☁️ Despliegue en Render
-
-El proyecto está desplegado como **Web Service** en [Render](https://render.com):
-
-- **Runtime:** Docker / .NET 8
-- **Base de datos:** SQLite embebida (se recrea y siembra automáticamente en cada arranque del contenedor)
-- **Swagger UI:** montado en la raíz del sitio (`/`)
-
-Variables de entorno configuradas en el servicio de Render:
-
-| Variable | Valor |
-|---|---|
-| `JWT_SECRET_KEY` | Clave secreta de firma de JWT (definida en el panel de Render) |
-| `ASPNETCORE_ENVIRONMENT` | `Production` |
-
-> ℹ️ Al usar SQLite con `EnsureDeleted()/EnsureCreated()` en el arranque, los datos **no persisten entre reinicios/redeploys** del servicio — cada arranque parte de los datos definidos en `SeedData.sql`.
-
----
-
-## 📄 Licencia
-
-Proyecto académico / de práctica. Libre uso para fines de aprendizaje.
+¡Por supuesto! Aquí tienes el README.md adaptado a las tecnologías y estructura de tu proyecto .NET, siguiendo exactamente el formato que solicitaste:🎬 ApiCine - Cinema Reservation APIAPI REST desarrollada con .NET 8 que implementa un sistema completo de reservas de asientos para un cine.  El sistema permite administrar:  usuarios  películas  géneros  salas  funciones  reservas de asientos  Además implementa control de concurrencia para evitar que dos usuarios reserven el mismo asiento para la misma función, utilizando índices únicos en la base de datos.  Este proyecto fue desarrollado como práctica de backend con C#, ASP.NET Core, Entity Framework Core y buenas prácticas de arquitectura.  📌 Tabla de ContenidosDescripciónDatos de pruebaArquitecturaOrganización del proyectoTecnologíasModelo del dominioFlujo del sistemaControl de concurrenciaDocumentación de APIManejo global de erroresInstalaciónEndpoints principalesMejoras futurasAutor / Contacto📖 DescripciónEste proyecto simula el backend de un sistema de reservas de cine.  Permite:registrar usuarios con roles de Cliente y Admin  administrar películas y asociarlas a múltiples géneros  crear salas con generación automática de asientos según filas y columnas  programar funciones con validación de solapamiento de horarios  reservar asientos específicos para una función  El sistema está diseñado para evitar problemas de concurrencia en reservas, uno de los problemas más comunes en sistemas de tickets.  🚀 Datos de pruebaLa aplicación carga automáticamente un script de inicialización (SeedData.sql) al arrancar el proyecto, poblando la base de datos con géneros, películas, salas y usuarios base.  🔑 Usuarios de pruebaPodés autenticarte en el endpoint /api/auth/login con cualquiera de estos usuarios ya cargados:  UsernameContraseñaRolEmailadminadminAdminadminjuan_perezUser123*Clientejuan@gmail.commaria_cineUser123*Clientemaria@gmail.comEl usuario Admin tiene acceso a los endpoints de administración (crear películas, salas, funciones, etc.).  Los usuarios Cliente permiten probar el flujo de reserva de asientos de punta a punta.  SQLINSERT INTO Usuario (Id, Username, Nombre, Email, Password, Role)
+VALUES (
+    1,
+    'admin',
+    'Admin General',
+    'admin',    
+    '$2a$11$iKApQgertluPRENCUQLYE.KgOeJjCnENblNYPRibDLoQPOr4p7HQ.',--admin
+    'Admin'
+);
+
+INSERT INTO Usuario (Id, Username, Nombre, Email, Password, Role) 
+VALUES (2, 'juan_perez', 'Juan Perez', 'juan@gmail.com', '$2a$11$M.Jz02Z.IP7LOMyBb70NS.pUopbrwmDRllulLrIoUHS0oO/0YvY8W', 'Cliente');-- 12345678
+
+INSERT INTO Usuario (Id, Username, Nombre, Email, Password, Role) 
+VALUES (3, 'maria_cine', 'Maria Garcia', 'maria@gmail.com', '$2a$11$M.Jz02Z.IP7LOMyBb70NS.pUopbrwmDRllulLrIoUHS0oO/0YvY8W', 'Cliente');-- 12345678
+⚠️ Estas son credenciales de un entorno de prueba, no de producción real. Las contraseñas ya están hasheadas con BCrypt en la base de datos.  🏗 ArquitecturaLa aplicación sigue una arquitectura en capas adaptada al ecosistema .NET:  Controller
+   ↓
+Service
+   ↓
+DbContext (Entity Framework)
+   ↓
+Entity
+   ↓
+Database (SQLite)
+Cada capa tiene responsabilidades claras.  CapaResponsabilidadControllerExponer endpoints REST y autorizar peticionesServiceLógica de negocio y validacionesDbContextAcceso a base de datos y configuraciones ORMEntityModelo de dominio📦 Organización del ProyectoEl proyecto está organizado por features (feature-based packaging) dentro de la carpeta Features.  En lugar de tener carpetas globales como Services o Controllers, cada entidad del dominio tiene su propia carpeta.  Esto facilita:  encontrar rápidamente la lógica relacionada  mantener el proyecto escalable  evitar carpetas demasiado grandes  mejorar la mantenibilidad  Estructura simplificada:  ApiCine
+│
+├── Features
+│   ├── Auth
+│   ├── Usuario
+│   │   ├── Controller
+│   │   ├── DTOs
+│   │   ├── Service
+│   │   └── UsuarioEntity.cs
+│   ├── Pelicula
+│   ├── Reserva
+│   ├── Sala
+│   ├── Funcion
+│   └── Genero
+│
+├── Data
+│   └── AppDbContext.cs
+│
+├── Exceptions
+│   └── GlobalExceptionHandler.cs
+│
+└── Mappers
+    └── MappingProfile.cs
+⚙️ TecnologíasBackendC# / .NET 8.0  ASP.NET Core  Entity Framework Core  AutoMapper  JWT Bearer Authentication  BCrypt.Net  DocumentaciónSwagger / Swashbuckle  Base de datosSQLite  🧩 Modelo del DominioEntidades principales:  Usuario  Pelicula  Genero  PeliculaGenero  Sala  Asiento  Funcion  Reserva  ReservaAsiento  Relación simplificada:  Usuario
+   │
+   └── Reserva
+          │
+          └── ReservaAsiento
+                 │
+                 └── Asiento
+                        │
+                        └── Sala
+                               │
+                               └── Funcion
+                                      │
+                                      └── Pelicula
+💺 Generación automática de asientosCuando se crea una sala mediante el endpoint, el sistema genera automáticamente los asientos en la base de datos combinando letras para las filas y números para las columnas.  Ejemplo:  A1 A2 A3 A4
+B1 B2 B3 B4
+C1 C2 C3 C4
+Esto permite crear dinámicamente salas de diferentes tamaños (estableciendo la cantidad de filas y columnas).  🎟 Flujo del Sistema1️⃣ Se crea una película  2️⃣ Se crea una sala (se generan automáticamente los asientos)  3️⃣ Se crea una función (película + sala + horario)  4️⃣ Los usuarios realizan reservas de asientos  🔒 Control de ConcurrenciaPara evitar reservas duplicadas se utiliza una restricción de índice único en Entity Framework Core:  C#builder.HasIndex(ra => new { ra.FuncionId, ra.AsientoId })
+       .IsUnique()
+       .HasDatabaseName("IX_ReservaAsiento_FuncionId_AsientoId");
+Esto garantiza en la base de datos que:  funcion + asiento = único
+Si dos usuarios intentan reservar el mismo asiento al mismo tiempo:  el primero se guarda correctamente  el segundo produce una excepción (detectada por el sistema)  el sistema informa que el asiento ya está reservado (Conflicto 409)  📚 Documentación de APILa API está documentada usando Swagger.  Permite:  visualizar todos los endpoints  probar requests desde el navegador incluyendo el Token JWT  ver modelos de request y response  Swagger UI (entorno local):http://localhost:5284/swagger
+⚠ Manejo Global de ErroresEl proyecto implementa un Global Exception Handler usando la interfaz IExceptionHandler.  Esto permite:  centralizar el manejo de errores en un solo componente  mapear excepciones personalizadas (NotFoundException, AlreadyExistsException, BadRequestException) a códigos HTTP correctos (404, 409, 400)  devolver respuestas consistentes bajo el estándar ProblemDetails  evitar duplicación de lógica try-catch en los controladores  ⚙️ Instalación1. Clonar repositorioBashgit clone https://github.com/RobertoTorre96/cinema-api.git
+(Asegurate de usar la URL correcta de tu repo)2. Configuración de Base de Datos
+El proyecto usa SQLite por defecto, por lo que no necesitas instalar un motor externo. La configuración ya se encuentra en appsettings.json:  JSON"ConnectionStrings": {
+  "DefaultConnection": "Data Source=Cine.db"
+}
+3. Ejecutar el proyecto
+Posiciónate en la carpeta del proyecto y ejecuta:  Bashdotnet run
+💡 El sistema creará automáticamente el archivo Cine.db y ejecutará el script SeedData.sql para tener todo listo para probar.  📡 Endpoints principalesAutenticaciónPOST /api/auth/login  UsuariosPOST /api/usuario  GET /api/usuario  PelículasPOST /api/pelicula  GET /api/pelicula  GET /api/pelicula/{id}  SalasPOST /api/sala  GET /api/sala  FuncionesPOST /api/funcion  GET /api/funcion  GET /api/funcion/{funcionId}/asientos-disponibles  ReservasPOST /api/reserva  PATCH /api/reserva/{id}/cancelar  Ejemplo request para reservar:  JSON{
+  "funcionId": 3,
+  "asientosIds": [5, 6]
+}
+🚀 Mejoras FuturasTests unitarios con xUnit/NUnitCache para disponibilidad de asientosRate limiting para reservasPaginación dinámica en todos los endpoints👨‍💻 AutorRoberto Torre📧 Email: torreroberto1996@gmail.com💻 GitHub: https://github.com/RobertoTorre96
